@@ -9,7 +9,7 @@ export const UpdateService = {
 
   // The actual URL provided by the user
   CHECK_URL:
-    "https://raw.githubusercontent.com/mustafa-ahmad-work/alhousonalkhamsa/main/version.json",
+    "https://raw.githubusercontent.com/mustafa-ahmad-work/alhousonalkhamsa/refs/heads/main/version.json",
 
   async checkForUpdate(): Promise<{
     hasUpdate: boolean;
