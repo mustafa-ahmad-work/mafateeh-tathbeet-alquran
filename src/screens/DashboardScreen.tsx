@@ -32,14 +32,19 @@ export default function DashboardScreen() {
   const { state, getMemorizedPages, getPagesDue } = useAppStore();
   const { user, streak } = state;
 
-  const [updateInfo, setUpdateInfo] = React.useState<{ hasUpdate: boolean, version?: string, changelog?: string }>({ hasUpdate: false });
+  const [updateInfo, setUpdateInfo] = React.useState<{ hasUpdate: boolean, version?: string, changelog?: string, link?: string }>({ hasUpdate: false });
   
   React.useEffect(() => {
     // Check for updates on mount
     const check = async () => {
       const info = await UpdateService.checkForUpdate();
       if (info?.hasUpdate) {
-        setUpdateInfo({ hasUpdate: true, version: info.latestVersion, changelog: info.changelog });
+        setUpdateInfo({ 
+          hasUpdate: true, 
+          version: info.latestVersion, 
+          changelog: info.changelog,
+          link: info.link 
+        });
       }
     };
     check();
@@ -136,7 +141,7 @@ export default function DashboardScreen() {
           {updateInfo.hasUpdate && (
             <TouchableOpacity 
               style={styles.updateBanner} 
-              onPress={() => Linking.openURL('https://github.com/mustafa-ahmad/alhouson-alkhamsa/releases')}
+              onPress={() => Linking.openURL(updateInfo.link || 'https://github.com/mustafa-ahmad-work/alhousonalkhamsa/releases')}
             >
               <LinearGradient 
                 colors={[Colors.primary, Colors.primaryDark]} 

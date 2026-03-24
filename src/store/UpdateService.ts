@@ -2,40 +2,35 @@ import Constants from 'expo-constants';
 
 /**
  * Service to check for new app versions.
- * In a real-world scenario, you would fetch this from your backend or a static JSON on GitHub.
+ * Fetches from a remote JSON file on GitHub.
  */
 export const UpdateService = {
   CURRENT_VERSION: Constants.expoConfig?.version || '1.0.0',
   
-  // Replace this with your actual update check URL (e.g., raw.githubusercontent.com/.../version.json)
-  CHECK_URL: 'https://raw.githubusercontent.com/mustafa-ahmad/alhouson-alkhamsa/main/version.json',
+  // The actual URL provided by the user
+  CHECK_URL: 'https://raw.githubusercontent.com/mustafa-ahmad-work/alhousonalkhamsa/refs/heads/main/version.json',
 
-  async checkForUpdate(): Promise<{ hasUpdate: boolean; latestVersion?: string; changelog?: string } | null> {
+  async checkForUpdate(): Promise<{ hasUpdate: boolean; latestVersion?: string; changelog?: string, link?: string } | null> {
     try {
-      // For demonstration, we simulate a fetch. 
-      // In production, uncomment the real fetch below.
+      const response = await fetch(this.CHECK_URL, {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
       
-      /*
-      const response = await fetch(this.CHECK_URL);
       if (!response.ok) return null;
+      
       const data = await response.json();
       
+      if (!data || !data.latestVersion) return { hasUpdate: false };
+
       const hasUpdate = this.isVersionGreater(data.latestVersion, this.CURRENT_VERSION);
+      
       return {
         hasUpdate,
         latestVersion: data.latestVersion,
-        changelog: data.changelog
-      };
-      */
-
-      // Simulated Logic: Change '1.1.0' to '1.0.0' to hide the banner
-      const latestVersion = '1.1.0'; 
-      const hasUpdate = latestVersion !== this.CURRENT_VERSION;
-
-      return {
-        hasUpdate,
-        latestVersion,
-        changelog: 'تحسينات واجهة الحفظ والمراجعة ودعم المظهر الداكن'
+        changelog: data.changelog,
+        link: data.link
       };
     } catch (error) {
       console.warn('Failed to check for updates:', error);
@@ -43,13 +38,19 @@ export const UpdateService = {
     }
   },
 
+  /**
+   * Compares two semantic version strings.
+   * Returns true if latest > current.
+   */
   isVersionGreater(latest: string, current: string): boolean {
-    const latestParts = latest.split('.').map(Number);
-    const currentParts = current.split('.').map(Number);
+    const latestParts = latest.split('.').map(p => parseInt(p, 10));
+    const currentParts = current.split('.').map(p => parseInt(p, 10));
 
     for (let i = 0; i < latestParts.length; i++) {
-        if (latestParts[i] > (currentParts[i] || 0)) return true;
-        if (latestParts[i] < (currentParts[i] || 0)) return false;
+        const l = latestParts[i] || 0;
+        const c = currentParts[i] || 0;
+        if (l > c) return true;
+        if (l < c) return false;
     }
     return false;
   }
