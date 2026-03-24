@@ -1,0 +1,202 @@
+import React, { useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ViewStyle,
+  TextStyle,
+  Animated,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme, Typography, Spacing, BorderRadius, Shadow } from '../theme';
+import { Ionicons } from '@expo/vector-icons';
+
+interface PrimaryButtonProps {
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  icon?: string;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+}
+
+export function PrimaryButton({
+  label,
+  onPress,
+  disabled = false,
+  variant = 'primary',
+  icon,
+  style,
+  textStyle,
+}: PrimaryButtonProps) {
+  const Colors = useTheme();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.97,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 6,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  if (variant === 'primary') {
+    return (
+      <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, style]}>
+        <TouchableOpacity
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          disabled={disabled}
+          activeOpacity={1}
+          style={styles.wrapper}
+        >
+          <LinearGradient
+            colors={disabled ? ['#1E2230', '#181C28'] : [Colors.primary, Colors.primaryDark]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.gradient, !disabled && Shadow.emerald]}
+          >
+            {icon && (
+              <Ionicons
+                name={icon as any}
+                size={18}
+                color={disabled ? Colors.textTertiary : '#FFFFFF'}
+              />
+            )}
+            <Text style={[styles.label, disabled && { color: Colors.textTertiary }, textStyle]}>
+              {label}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
+
+  if (variant === 'secondary') {
+    return (
+      <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, style]}>
+        <TouchableOpacity
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          disabled={disabled}
+          activeOpacity={1}
+          style={[
+            styles.secondary,
+            { borderColor: Colors.primary + '40', backgroundColor: Colors.primaryMuted },
+            disabled && styles.disabledSecondary,
+          ]}
+        >
+          {icon && (
+            <Ionicons
+              name={icon as any}
+              size={18}
+              color={disabled ? Colors.textTertiary : Colors.primary}
+            />
+          )}
+          <Text
+            style={[
+              styles.secondaryLabel,
+              { color: Colors.primary },
+              disabled && { color: Colors.textTertiary },
+              textStyle,
+            ]}
+          >
+            {label}
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
+
+  // Ghost
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.6}
+      style={[styles.ghost, style]}
+    >
+      {icon && (
+        <Ionicons
+          name={icon as any}
+          size={18}
+          color={disabled ? Colors.textTertiary : Colors.textSecondary}
+        />
+      )}
+      <Text style={[styles.ghostLabel, { color: Colors.textSecondary }, disabled && { color: Colors.textTertiary }, textStyle]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  wrapper: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  gradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+  },
+  label: {
+    fontSize: Typography.base,
+    fontWeight: Typography.semibold,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    letterSpacing: 0.3,
+  },
+
+  // Secondary
+  secondary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+  },
+  disabledSecondary: {
+    borderColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'transparent',
+  },
+  secondaryLabel: {
+    fontSize: Typography.base,
+    fontWeight: Typography.medium,
+    textAlign: 'center',
+  },
+
+  // Ghost
+  ghost: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.base,
+  },
+  ghostLabel: {
+    fontSize: Typography.base,
+    fontWeight: Typography.medium,
+    textAlign: 'center',
+  },
+});
