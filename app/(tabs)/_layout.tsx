@@ -19,10 +19,10 @@ import { useAppStore } from "../../src/store/AppStore";
 const ICONS: Record<string, { outline: string; filled: string }> = {
   dashboard: { outline: "home-outline", filled: "home" },
   memorization: {
-    outline: "shield-checkmark-outline",
-    filled: "shield-checkmark",
+    outline: "map-outline",
+    filled: "map",
   },
-  review: { outline: "sync-outline", filled: "sync" },
+  review: { outline: "heart-outline", filled: "heart" },
   progress: { outline: "stats-chart-outline", filled: "stats-chart" },
 };
 
@@ -198,8 +198,8 @@ export default function TabsLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="dashboard" options={{ title: "الرئيسية" }} />
-      <Tabs.Screen name="memorization" options={{ title: "الحفظ" }} />
-      <Tabs.Screen name="review" options={{ title: "المراجعة" }} />
+      <Tabs.Screen name="memorization" options={{ title: "الخطة" }} />
+      <Tabs.Screen name="review" options={{ title: "فضائل القرآن" }} />
       <Tabs.Screen name="progress" options={{ title: "التقدم" }} />
     </Tabs>
   );

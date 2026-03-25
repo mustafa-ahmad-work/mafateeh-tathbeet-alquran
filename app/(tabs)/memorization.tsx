@@ -1,6 +1,6 @@
 import React from 'react';
-import MemorizationScreen from '../../src/screens/MemorizationScreen';
+import PlanScreen from '../../src/screens/PlanScreen';
 
-export default function Memorization() {
-  return <MemorizationScreen />;
+export default function PlanPath() {
+  return <PlanScreen />;
 }

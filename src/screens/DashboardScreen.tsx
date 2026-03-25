@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
@@ -14,14 +15,12 @@ import {
 } from "react-native";
 import { ModuleCard } from "../components/ModuleCard";
 import { StreakBadge } from "../components/StreakBadge";
-import { FortressGuide } from "../components/FortressGuide";
 import { useAppStore } from "../store/AppStore";
 import { useSelectionStore } from "../store/selectionStore";
-import { BorderRadius, Spacing, Typography, useTheme, Shadow } from "../theme";
+import { UpdateService } from "../store/UpdateService";
+import { BorderRadius, Shadow, Spacing, Typography, useTheme } from "../theme";
 import { MODULES } from "../types";
 import { getMotivationalMessage } from "../utils/helpers";
-import * as Linking from 'expo-linking';
-import { UpdateService } from "../store/UpdateService";
 
 const { width } = Dimensions.get("window");
 
@@ -32,18 +31,23 @@ export default function DashboardScreen() {
   const { state, getMemorizedPages, getPagesDue } = useAppStore();
   const { user, streak } = state;
 
-  const [updateInfo, setUpdateInfo] = React.useState<{ hasUpdate: boolean, version?: string, changelog?: string, link?: string }>({ hasUpdate: false });
-  
+  const [updateInfo, setUpdateInfo] = React.useState<{
+    hasUpdate: boolean;
+    version?: string;
+    changelog?: string;
+    link?: string;
+  }>({ hasUpdate: false });
+
   React.useEffect(() => {
     // Check for updates on mount
     const check = async () => {
       const info = await UpdateService.checkForUpdate();
       if (info?.hasUpdate) {
-        setUpdateInfo({ 
-          hasUpdate: true, 
-          version: info.latestVersion, 
+        setUpdateInfo({
+          hasUpdate: true,
+          version: info.latestVersion,
           changelog: info.changelog,
-          link: info.link 
+          link: info.link,
         });
       }
     };
@@ -139,22 +143,37 @@ export default function DashboardScreen() {
           </View>
 
           {updateInfo.hasUpdate && (
-            <TouchableOpacity 
-              style={styles.updateBanner} 
-              onPress={() => Linking.openURL(updateInfo.link || 'https://github.com/mustafa-ahmad-work/alhousonalkhamsa/releases')}
+            <TouchableOpacity
+              style={styles.updateBanner}
+              onPress={() =>
+                Linking.openURL(
+                  updateInfo.link ||
+                    "https://github.com/mustafa-ahmad-work/alhousonalkhamsa/releases",
+                )
+              }
             >
-              <LinearGradient 
-                colors={[Colors.primary, Colors.primaryDark]} 
-                start={{ x: 0, y: 0 }} 
-                end={{ x: 1, y: 0 }} 
+              <LinearGradient
+                colors={[Colors.primary, Colors.primaryDark]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
                 style={styles.updateGradient}
               >
                 <View style={[styles.updateInfo, { flexShrink: 1 }]}>
-                  <Ionicons name="cloud-download-outline" size={20} color="#FFF" />
+                  <Ionicons
+                    name="cloud-download-outline"
+                    size={20}
+                    color="#FFF"
+                  />
                   <View style={styles.updateTexts}>
-                    <Text style={styles.updateTitle} numberOfLines={1}>تحديث جديد: {updateInfo.version}!</Text>
-                    <Text style={styles.updateDesc} numberOfLines={1} ellipsizeMode="tail">
-                      {updateInfo.changelog || 'اضافات جديدة وتحسينات عامة'}
+                    <Text style={styles.updateTitle} numberOfLines={1}>
+                      تحديث جديد: {updateInfo.version}!
+                    </Text>
+                    <Text
+                      style={styles.updateDesc}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {updateInfo.changelog || "اضافات جديدة وتحسينات عامة"}
                     </Text>
                   </View>
                 </View>
@@ -286,12 +305,6 @@ export default function DashboardScreen() {
         <StreakBadge
           currentStreak={streak.currentStreak}
           longestStreak={streak.longestStreak}
-        />
-
-        {/* Fortress Daily Guide */}
-        <FortressGuide
-          plan={state.plan}
-          pageProgress={state.pageProgress}
         />
 
         {/* Dynamic Modules Section */}

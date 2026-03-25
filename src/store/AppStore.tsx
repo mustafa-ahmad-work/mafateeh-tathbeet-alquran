@@ -64,6 +64,8 @@ const initialState: AppState = {
     memorizationTimerMinutes: 15,
     preparationTimerMinutes: 15,
     reviewTimerMinutes: 15,
+    memorizationMethod: "standard",
+    chunksPerPage: 1,
   },
 };
 
@@ -84,7 +86,9 @@ type Action =
   | { type: "RESET" }
   | { type: "UPDATE_USER"; payload: Partial<User> }
   | { type: "UPDATE_SETTINGS"; payload: Partial<AppState["settings"]> }
-  | { type: "UPDATE_GLOBAL_STATS"; payload: any };
+  | { type: "UPDATE_GLOBAL_STATS"; payload: any }
+  | { type: "SET_FORTRESS_COMPLETED"; payload: { fortressId: FortressId; completed: boolean } }
+  | { type: "COMPLETE_ALL_TODAY" };
 
 // ─── Reducer ──────────────────────────────────────────────
 function appReducer(state: AppState, action: Action): AppState {
@@ -132,7 +136,7 @@ function appReducer(state: AppState, action: Action): AppState {
 
       // Track new user in Firebase (Only once)
       StatisticsService.trackNewUser();
- 
+
       return {
         ...state,
         user,
@@ -179,11 +183,13 @@ function appReducer(state: AppState, action: Action): AppState {
 
       const totalXP = updatedProgress.reduce((sum, p) => sum + p.xpEarned, 0);
       const newTitle = getTitleFromXP(totalXP);
- 
+
       const field = fortressToField(fortressId);
       const todayProg = updatedProgress.find((p) => p.date === today);
-      const isCompleted = todayProg ? (todayProg as Record<string, unknown>)[field] : false;
-      
+      const isCompleted = todayProg
+        ? (todayProg as Record<string, unknown>)[field]
+        : false;
+
       if (isCompleted) {
         StatisticsService.trackTaskCompletion();
       }
@@ -211,6 +217,60 @@ function appReducer(state: AppState, action: Action): AppState {
           ? { ...state.user, totalXP, title: newTitle as User["title"] }
           : state.user,
       };
+    }
+
+    case "SET_FORTRESS_COMPLETED": {
+      const { fortressId, completed } = action.payload;
+      const today = todayISO();
+      const fortress = FORTRESSES.find((f) => f.id === fortressId);
+      const xpReward = fortress?.xpReward ?? 0;
+
+      const existingIndex = state.dailyProgress.findIndex((p) => p.date === today);
+      let updatedProgress: DailyProgress[];
+
+      if (existingIndex === -1 && completed) {
+        const newProgress = createEmptyDailyProgress();
+        (newProgress as Record<string, any>)[fortressToField(fortressId)] = true;
+        newProgress.xpEarned = xpReward;
+        updatedProgress = [...state.dailyProgress, newProgress];
+      } else if (existingIndex !== -1) {
+        updatedProgress = state.dailyProgress.map((p, i) => {
+          if (i !== existingIndex) return p;
+          const field = fortressToField(fortressId);
+          const wasCompleted = (p as Record<string, any>)[field];
+          if (wasCompleted === completed) return p;
+
+          const newXP = completed ? p.xpEarned + xpReward : p.xpEarned - xpReward;
+          return { ...p, [field]: completed, xpEarned: Math.max(0, newXP) };
+        });
+      } else {
+        return state;
+      }
+
+      const totalXP = updatedProgress.reduce((sum, p) => sum + p.xpEarned, 0);
+      const newTitle = getTitleFromXP(totalXP);
+      const todayProg = updatedProgress.find((p) => p.date === today);
+      
+      const completion = todayProg ? getDailyCompletionPercent(todayProg) : 0;
+      const allDone = completion >= 1.0;
+      const rawStreak = calculateStreak(state.streak.currentStreak, state.streak.longestStreak, state.streak.lastActiveDate, allDone);
+
+      return {
+        ...state,
+        dailyProgress: updatedProgress,
+        streak: { currentStreak: rawStreak.current, longestStreak: rawStreak.longest, lastActiveDate: rawStreak.lastActiveDate },
+        user: state.user ? { ...state.user, totalXP, title: newTitle as any } : state.user,
+      };
+    }
+
+    case "COMPLETE_ALL_TODAY": {
+      const today = todayISO();
+      const fortressIds: FortressId[] = ["recitation", "listening", "preparation", "memorization", "review"];
+      let newState = state;
+      fortressIds.forEach(id => {
+        newState = appReducer(newState, { type: "SET_FORTRESS_COMPLETED", payload: { fortressId: id, completed: true } });
+      });
+      return newState;
     }
 
     case "MARK_PAGES_MEMORIZED": {
@@ -274,19 +334,30 @@ function appReducer(state: AppState, action: Action): AppState {
 
     case "UPDATE_USER": {
       if (!state.user) return state;
+      const newUser = { ...state.user, ...action.payload };
+      
+      // If dailyPages changed, regenerate the plan
+      let newPlan = state.plan;
+      if (action.payload.dailyPages !== undefined && state.plan) {
+        newPlan = generatePlan(state.plan.startPage, state.plan.endPage, action.payload.dailyPages);
+        // Maintain the current page
+        newPlan.currentPage = state.plan.currentPage;
+      }
+
       return {
         ...state,
-        user: { ...state.user, ...action.payload },
+        user: newUser,
+        plan: newPlan,
       };
     }
- 
+
     case "UPDATE_SETTINGS": {
       return {
         ...state,
         settings: { ...state.settings, ...action.payload },
       };
     }
- 
+
     case "UPDATE_GLOBAL_STATS": {
       return {
         ...state,
@@ -343,7 +414,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 // ─── Provider ─────────────────────────────────────────────
 export function AppProvider({ children }: PropsWithChildren) {
   const [state, dispatch] = useReducer(appReducer, initialState);
- 
+
   const loadState = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);

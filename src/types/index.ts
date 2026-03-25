@@ -144,6 +144,8 @@ export type AppSettings = {
   memorizationTimerMinutes: number;
   preparationTimerMinutes: number;
   reviewTimerMinutes: number;
+  memorizationMethod: 'standard' | 'linking';
+  chunksPerPage: number;
 };
 
 export type AppState = {
