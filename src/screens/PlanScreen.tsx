@@ -1,6 +1,5 @@
-import { BlurView } from "expo-blur";
-import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -92,33 +91,33 @@ const styles_global = StyleSheet.create({
     alignItems: "center",
     gap: Spacing.xl,
     paddingHorizontal: 30,
-    width: '100%',
+    width: "100%",
   },
   trophyContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing.md,
   },
   glow: {
-    position: 'absolute',
+    position: "absolute",
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    shadowColor: '#FFD700',
+    backgroundColor: "rgba(255, 215, 0, 0.2)",
+    shadowColor: "#FFD700",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 40,
   },
   trophyIcon: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
   },
   textContent: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: Spacing.sm,
   },
   celebrationTitle: {
@@ -126,7 +125,7 @@ const styles_global = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFF",
     textAlign: "center",
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 10,
   },
@@ -138,14 +137,14 @@ const styles_global = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   duaBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    width: '100%',
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    width: "100%",
     maxWidth: 320,
-    alignItems: 'center',
+    alignItems: "center",
   },
   celebrationDua: {
     fontSize: 17,
@@ -153,19 +152,19 @@ const styles_global = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     lineHeight: 26,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   closeCelebration: {
     marginTop: Spacing.xl,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   closeCelebrationText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     opacity: 0.6,
   },
   particlesContainer: {
@@ -173,7 +172,7 @@ const styles_global = StyleSheet.create({
     width: width,
     height: height,
     top: 0,
-    pointerEvents: 'none',
+    pointerEvents: "none",
   },
   particle: {
     position: "absolute",
@@ -220,27 +219,27 @@ const getStyles = (Colors: any) =>
 
     // Summary Stats
     summaryStatsRow: {
-       width: '100%',
-       backgroundColor: `${Colors.primary}05`,
-       borderRadius: 16,
-       padding: Spacing.lg,
-       marginBottom: Spacing.xl,
-       borderWidth: 1,
-       borderColor: `${Colors.primary}10`,
-       gap: Spacing.md,
+      width: "100%",
+      backgroundColor: `${Colors.primary}05`,
+      borderRadius: 16,
+      padding: Spacing.lg,
+      marginBottom: Spacing.xl,
+      borderWidth: 1,
+      borderColor: `${Colors.primary}10`,
+      gap: Spacing.md,
     },
     summaryStatItem: {
-       alignItems: 'flex-start',
+      alignItems: "flex-start",
     },
     summaryStatLabel: {
-       fontSize: 11,
-       color: Colors.textTertiary,
-       marginBottom: 2,
+      fontSize: 11,
+      color: Colors.textTertiary,
+      marginBottom: 2,
     },
     summaryStatValue: {
-       fontSize: 14,
-       fontWeight: 'bold',
-       color: Colors.textPrimary,
+      fontSize: 14,
+      fontWeight: "bold",
+      color: Colors.textPrimary,
     },
 
     progressSection: { marginBottom: Spacing.xl, width: "100%" },
@@ -423,22 +422,24 @@ const Particle = () => {
   const ty = useSharedValue(height / 2 + 100);
   const scale = useSharedValue(Math.random() * 0.8 + 0.2);
   const rotation = useSharedValue(0);
-  const color = ["#FFD700", "#FFF", "#4ADE80", "#60A5FA", "#F87171"][Math.floor(Math.random() * 5)];
-  
+  const color = ["#FFD700", "#FFF", "#4ADE80", "#60A5FA", "#F87171"][
+    Math.floor(Math.random() * 5)
+  ];
+
   useEffect(() => {
-    ty.value = withTiming(-height / 2 - 200, { 
-      duration: 3000 + Math.random() * 2000, 
-      easing: Easing.out(Easing.quad) 
+    ty.value = withTiming(-height / 2 - 200, {
+      duration: 3000 + Math.random() * 2000,
+      easing: Easing.out(Easing.quad),
     });
     rotation.value = withTiming(360 * 2, { duration: 4000 });
   }, []);
 
   const style = useAnimatedStyle(() => ({
     transform: [
-      { translateX: tx.value }, 
-      { translateY: ty.value }, 
+      { translateX: tx.value },
+      { translateY: ty.value },
       { scale: scale.value },
-      { rotate: `${rotation.value}deg` }
+      { rotate: `${rotation.value}deg` },
     ],
     opacity: withTiming(0, { duration: 4500 }),
     backgroundColor: color,
@@ -449,31 +450,41 @@ const Particle = () => {
 
 const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
   const Colors = useTheme();
-  const [msg] = useState(() => MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)]);
-  
+  const [msg] = useState(
+    () =>
+      MOTIVATIONAL_MESSAGES[
+        Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)
+      ],
+  );
+
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    const timer = setTimeout(onComplete, 4000); 
+    const timer = setTimeout(onComplete, 4000);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
-    <Animated.View 
-      entering={FadeIn.duration(300)} 
+    <Animated.View
+      entering={FadeIn.duration(300)}
       exiting={FadeOut.duration(200)}
       style={[StyleSheet.absoluteFill, { zIndex: 10000 }]}
     >
       {/* Background Dimmer */}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.8)' }]} />
-      
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: "rgba(0,0,0,0.8)" },
+        ]}
+      />
+
       <View style={styles_global.celebrationOverlay}>
-        <Animated.View 
+        <Animated.View
           entering={FadeIn.duration(600).springify().damping(18)}
           style={{
             backgroundColor: Colors.surface, // Solid Theme Background
             borderRadius: 30,
             padding: 30,
-            alignItems: 'center',
+            alignItems: "center",
             width: width * 0.85,
             maxWidth: 360,
             ...Shadow.lg,
@@ -481,54 +492,88 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
             borderColor: Colors.border,
           }}
         >
-          <View style={{
+          <View
+            style={{
               width: 90,
               height: 90,
               borderRadius: 45,
               backgroundColor: `${Colors.success}15`,
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
               marginBottom: 24,
             }}
           >
-            <Ionicons name="checkmark-circle" size={60} color={Colors.success} />
+            <Ionicons
+              name="checkmark-circle"
+              size={60}
+              color={Colors.success}
+            />
           </View>
-          
-          <Text style={{ fontSize: 28, fontWeight: 'bold', color: Colors.textPrimary, textAlign: 'center', marginBottom: 8 }}>
+
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "bold",
+              color: Colors.textPrimary,
+              textAlign: "center",
+              marginBottom: 8,
+            }}
+          >
             {msg.title}
           </Text>
-          <Text style={{ fontSize: 16, color: Colors.textSecondary, textAlign: 'center', fontWeight: '500' }}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: Colors.textSecondary,
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
             {msg.subtitle}
           </Text>
 
-          <View style={{ 
-            marginTop: 24, 
-            padding: 20, 
-            backgroundColor: `${Colors.primary}05`, 
-            borderRadius: 16,
-            width: '100%',
-            borderLeftWidth: 3,
-            borderLeftColor: Colors.primary,
-          }}>
-             <Text style={{ color: Colors.textPrimary, fontSize: 16, fontStyle: 'italic', lineHeight: 24, textAlign: 'center' }}>
-               "{msg.dua}"
-             </Text>
+          <View
+            style={{
+              marginTop: 24,
+              padding: 20,
+              backgroundColor: `${Colors.primary}05`,
+              borderRadius: 16,
+              width: "100%",
+              borderLeftWidth: 3,
+              borderLeftColor: Colors.primary,
+            }}
+          >
+            <Text
+              style={{
+                color: Colors.textPrimary,
+                fontSize: 16,
+                fontStyle: "italic",
+                lineHeight: 24,
+                textAlign: "center",
+              }}
+            >
+              "{msg.dua}"
+            </Text>
           </View>
 
-          <TouchableOpacity 
-            onPress={onComplete} 
+          <TouchableOpacity
+            onPress={onComplete}
             activeOpacity={0.7}
             style={{
               marginTop: 24,
               backgroundColor: Colors.primary,
-              width: '100%',
+              width: "100%",
               paddingVertical: 14,
               borderRadius: 14,
-              alignItems: 'center',
+              alignItems: "center",
               ...Shadow.emerald,
             }}
           >
-             <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>استمرار</Text>
+            <Text
+              style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "bold" }}
+            >
+              استمرار
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -617,7 +662,12 @@ const PlanDay = React.memo(
                     </View>
                   )}
                   {item.isCompleted && (
-                    <View style={[styles.currentBadge, { backgroundColor: Colors.success }]}>
+                    <View
+                      style={[
+                        styles.currentBadge,
+                        { backgroundColor: Colors.success },
+                      ]}
+                    >
                       <Text style={styles.currentBadgeText}>تم الإنجاز</Text>
                     </View>
                   )}
@@ -656,12 +706,14 @@ const PlanDay = React.memo(
                 </View>
 
                 {item.isCurrent && !item.isCompleted && (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.completeBtn}
                     onPress={() => onComplete(item)}
                   >
                     <Ionicons name="checkmark-circle" size={24} color="#FFF" />
-                    <Text style={styles.completeBtnText}>إتمام كافة مهام اليوم</Text>
+                    <Text style={styles.completeBtnText}>
+                      إتمام كافة مهام اليوم
+                    </Text>
                   </TouchableOpacity>
                 )}
               </Animated.View>
@@ -691,13 +743,17 @@ const HeaderComponent = React.memo(({ roadmap, Colors, styles }: any) => {
   const completedCount = roadmap.filter((d: any) => d.isCompleted).length;
   const totalCount = roadmap.length;
   const progressPct = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  
+
   // Current day index
   const currentDayItem = roadmap.find((d: any) => d.isCurrent);
-  const currentDayIndex = currentDayItem ? currentDayItem.dayIndex : (completedCount < totalCount ? completedCount + 1 : totalCount);
+  const currentDayIndex = currentDayItem
+    ? currentDayItem.dayIndex
+    : completedCount < totalCount
+      ? completedCount + 1
+      : totalCount;
 
   // Duration calculations (Approximation)
-  const totalYears = Math.floor(totalCount / 355); 
+  const totalYears = Math.floor(totalCount / 355);
   const remainingAfterYears = totalCount % 355;
   const totalMonths = Math.floor(remainingAfterYears / 30);
   const totalDays = remainingAfterYears % 30;
@@ -712,20 +768,21 @@ const HeaderComponent = React.memo(({ roadmap, Colors, styles }: any) => {
       </View>
 
       <View style={styles.summaryStatsRow}>
-         <View style={styles.summaryStatItem}>
-            <Text style={styles.summaryStatLabel}>مدة الرحلة الإجمالية</Text>
-            <Text style={styles.summaryStatValue}>
-               {totalYears > 0 ? `${toArabicNumerals(totalYears)} سنة و ` : ''}
-               {totalMonths > 0 ? `${toArabicNumerals(totalMonths)} شهر و ` : ''}
-               {toArabicNumerals(totalDays)} يوم
-            </Text>
-         </View>
-         <View style={styles.summaryStatItem}>
-            <Text style={styles.summaryStatLabel}>أنت الآن في</Text>
-            <Text style={styles.summaryStatValue}>
-               اليوم {toArabicNumerals(currentDayIndex)} من أصل {toArabicNumerals(totalCount)}
-            </Text>
-         </View>
+        <View style={styles.summaryStatItem}>
+          <Text style={styles.summaryStatLabel}>مدة الرحلة الإجمالية</Text>
+          <Text style={styles.summaryStatValue}>
+            {totalYears > 0 ? `${toArabicNumerals(totalYears)} سنة و ` : ""}
+            {totalMonths > 0 ? `${toArabicNumerals(totalMonths)} شهر و ` : ""}
+            {toArabicNumerals(totalDays)} يوم
+          </Text>
+        </View>
+        <View style={styles.summaryStatItem}>
+          <Text style={styles.summaryStatLabel}>أنت الآن في</Text>
+          <Text style={styles.summaryStatValue}>
+            اليوم {toArabicNumerals(currentDayIndex)} من أصل{" "}
+            {toArabicNumerals(totalCount)}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.progressSection}>
@@ -751,7 +808,9 @@ const HeaderComponent = React.memo(({ roadmap, Colors, styles }: any) => {
           <Text style={styles.statLabel}>أيام منجزة</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statVal}>{toArabicNumerals(totalCount - completedCount)}</Text>
+          <Text style={styles.statVal}>
+            {toArabicNumerals(totalCount - completedCount)}
+          </Text>
           <Text style={styles.statLabel}>أيام متبقية</Text>
         </View>
       </View>
@@ -788,7 +847,7 @@ export default function PlanScreen() {
       const startIndex = i * plan.pagesPerDay;
       const dayPages = plan.targetPages.slice(
         startIndex,
-        startIndex + plan.pagesPerDay
+        startIndex + plan.pagesPerDay,
       );
       if (dayPages.length === 0) continue;
 
@@ -819,7 +878,7 @@ export default function PlanScreen() {
 
       const nextDayPages = plan.targetPages.slice(
         (i + 1) * plan.pagesPerDay,
-        (i + 2) * plan.pagesPerDay
+        (i + 2) * plan.pagesPerDay,
       );
       const hasNext = nextDayPages.length > 0;
       const nextMin = hasNext ? Math.min(...nextDayPages) : 0;
@@ -827,7 +886,7 @@ export default function PlanScreen() {
 
       const weeklyPages = plan.targetPages.slice(
         (i + 7) * plan.pagesPerDay,
-        (i + 14) * plan.pagesPerDay
+        (i + 14) * plan.pagesPerDay,
       );
       const hasWeekly = weeklyPages.length > 0;
       const weeklyMin = hasWeekly ? Math.min(...weeklyPages) : 0;
@@ -839,33 +898,34 @@ export default function PlanScreen() {
         wardEnd >= wardStart
           ? `${toArabicNumerals(wardStart)} - ${toArabicNumerals(wardEnd)}`
           : `${toArabicNumerals(wardStart)} - ٦٠٤ و ١ - ${toArabicNumerals(
-              wardEnd
+              wardEnd,
             )}`;
 
-      // Review logic 
+      // Review logic
       const alreadyMemorized = plan.targetPages.slice(0, i * plan.pagesPerDay);
-      const nearPages = alreadyMemorized.slice(-20); 
-      const distantPages = alreadyMemorized.slice(-60, -20); 
+      const nearPages = alreadyMemorized.slice(-20);
+      const distantPages = alreadyMemorized.slice(-60, -20);
 
       const nearLabel =
         nearPages.length > 0
           ? `${toArabicNumerals(Math.min(...nearPages))} - ${toArabicNumerals(
-              Math.max(...nearPages)
+              Math.max(...nearPages),
             )}`
           : "لا يوجد (بداية الخطة)";
 
       const distantLabel =
         distantPages.length > 0
           ? `${toArabicNumerals(Math.min(...distantPages))} - ${toArabicNumerals(
-              Math.max(...distantPages)
+              Math.max(...distantPages),
             )}`
           : "لا يوجد بعد";
 
       const listenHizbStart = ((i * 10) % 604) + 1;
       const listenHizbEnd = ((listenHizbStart + 9) % 604) + 1;
-      const listenLabel = listenHizbEnd >= listenHizbStart
-        ? `${toArabicNumerals(listenHizbStart)} - ${toArabicNumerals(listenHizbEnd)}`
-        : `${toArabicNumerals(listenHizbStart)} - ٦٠٤ و ١ - ${toArabicNumerals(listenHizbEnd)}`;
+      const listenLabel =
+        listenHizbEnd >= listenHizbStart
+          ? `${toArabicNumerals(listenHizbStart)} - ${toArabicNumerals(listenHizbEnd)}`
+          : `${toArabicNumerals(listenHizbStart)} - ٦٠٤ و ١ - ${toArabicNumerals(listenHizbEnd)}`;
 
       const tasks: DayTask[] = [
         {
@@ -938,7 +998,7 @@ export default function PlanScreen() {
 
   const initialScrollIndex = useMemo(() => {
     if (!roadmap || roadmap.length === 0) return 0;
-    const currentIdx = roadmap.findIndex(d => d.isCurrent);
+    const currentIdx = roadmap.findIndex((d) => d.isCurrent);
     return currentIdx !== -1 ? currentIdx : 0;
   }, [roadmap]);
 
@@ -946,40 +1006,67 @@ export default function PlanScreen() {
     setExpandedDay((prev) => (prev === day ? null : day));
   }, []);
 
-  const handleComplete = useCallback((item: DayItem) => {
-    dispatch({ type: "MARK_PAGES_MEMORIZED", payload: { pages: item.pageNumbers } });
-    dispatch({ type: "COMPLETE_ALL_TODAY" });
-
-    const modulesToSync: { moduleId: any, start: number, end: number }[] = [
-      { moduleId: 'memorization', start: item.pages.start, end: item.pages.end },
-      { moduleId: 'preparation_before', start: item.pages.start, end: item.pages.end },
-      { moduleId: 'recitation', start: ((item.dayIndex - 1) * 40 % 604) + 1, end: (((item.dayIndex - 1) * 40 % 604) + 39) % 604 + 1 },
-      { moduleId: 'listening', start: ((item.dayIndex - 1) * 10 % 604) + 1, end: (((item.dayIndex - 1) * 10 % 604) + 9) % 604 + 1 },
-    ];
-
-    if (item.pages.start > 1) {
-      modulesToSync.push({
-        moduleId: "review_short",
-        start: Math.max(1, item.pages.start - 20),
-        end: Math.max(1, item.pages.start - 1),
+  const handleComplete = useCallback(
+    (item: DayItem) => {
+      dispatch({
+        type: "MARK_PAGES_MEMORIZED",
+        payload: { pages: item.pageNumbers },
       });
-    }
+      dispatch({ type: "COMPLETE_ALL_TODAY" });
 
-    modulesToSync.forEach(m => {
-      const alreadyExists = selectionStore.getModuleSelections(m.moduleId).find(s => 
-        s.ranges.some(r => r.start === m.start && r.end === m.end)
-      );
-      if (alreadyExists) {
-        if (!alreadyExists.isCompleted) selectionStore.completeTaskSelection(alreadyExists.id);
-      } else {
-        selectionStore.addTaskSelection(m.moduleId, [selectionStore.createPageRange(m.start, m.end)]);
-        const latest = selectionStore.getLatestSelection(m.moduleId);
-        if (latest) selectionStore.completeTaskSelection(latest.id);
+      const modulesToSync: { moduleId: any; start: number; end: number }[] = [
+        {
+          moduleId: "memorization",
+          start: item.pages.start,
+          end: item.pages.end,
+        },
+        {
+          moduleId: "preparation_before",
+          start: item.pages.start,
+          end: item.pages.end,
+        },
+        {
+          moduleId: "recitation",
+          start: (((item.dayIndex - 1) * 40) % 604) + 1,
+          end: (((((item.dayIndex - 1) * 40) % 604) + 39) % 604) + 1,
+        },
+        {
+          moduleId: "listening",
+          start: (((item.dayIndex - 1) * 10) % 604) + 1,
+          end: (((((item.dayIndex - 1) * 10) % 604) + 9) % 604) + 1,
+        },
+      ];
+
+      if (item.pages.start > 1) {
+        modulesToSync.push({
+          moduleId: "review_short",
+          start: Math.max(1, item.pages.start - 20),
+          end: Math.max(1, item.pages.start - 1),
+        });
       }
-    });
 
-    setShowCelebration(true);
-  }, [dispatch, selectionStore]);
+      modulesToSync.forEach((m) => {
+        const alreadyExists = selectionStore
+          .getModuleSelections(m.moduleId)
+          .find((s) =>
+            s.ranges.some((r) => r.start === m.start && r.end === m.end),
+          );
+        if (alreadyExists) {
+          if (!alreadyExists.isCompleted)
+            selectionStore.completeTaskSelection(alreadyExists.id);
+        } else {
+          selectionStore.addTaskSelection(m.moduleId, [
+            selectionStore.createPageRange(m.start, m.end),
+          ]);
+          const latest = selectionStore.getLatestSelection(m.moduleId);
+          if (latest) selectionStore.completeTaskSelection(latest.id);
+        }
+      });
+
+      setShowCelebration(true);
+    },
+    [dispatch, selectionStore],
+  );
 
   const renderItem = useCallback(
     ({ item, index }: { item: DayItem; index: number }) => (
@@ -1016,10 +1103,14 @@ export default function PlanScreen() {
         data={roadmap}
         renderItem={renderItem}
         keyExtractor={(item) => item.dayIndex.toString()}
-        ListHeaderComponent={<HeaderComponent roadmap={roadmap} Colors={Colors} styles={styles} />}
+        ListHeaderComponent={
+          <HeaderComponent roadmap={roadmap} Colors={Colors} styles={styles} />
+        }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        initialScrollIndex={initialScrollIndex > 0 ? initialScrollIndex : undefined}
+        initialScrollIndex={
+          initialScrollIndex > 0 ? initialScrollIndex : undefined
+        }
         getItemLayout={(_, index) => ({
           length: 100, // Approximate height of a closed item
           offset: 100 * index,
@@ -1027,7 +1118,9 @@ export default function PlanScreen() {
         })}
         onScrollToIndexFailed={() => {}}
       />
-      {showCelebration && <CelebrationOverlay onComplete={() => setShowCelebration(false)} />}
+      {showCelebration && (
+        <CelebrationOverlay onComplete={() => setShowCelebration(false)} />
+      )}
     </View>
   );
 }
