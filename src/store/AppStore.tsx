@@ -158,17 +158,28 @@ function appReducer(state: AppState, action: Action): AppState {
         };
       }
 
-      // Schedule reminders if loaded
-      // REMOVED: scheduleFortressReminders from reducer to prevent side effects and loops
-      // if (mergedSettings.notifications) {
-      //   NotificationService.scheduleFortressReminders(mergedSettings.notifications);
-      // }
+      // Check if streak was broken since last session
+      let updatedStreak = action.payload.streak || state.streak;
+      if (updatedStreak.lastActiveDate) {
+        const rawStreak = calculateStreak(
+          updatedStreak.currentStreak,
+          updatedStreak.longestStreak,
+          updatedStreak.lastActiveDate,
+          false
+        );
+        updatedStreak = {
+          currentStreak: rawStreak.current,
+          longestStreak: rawStreak.longest,
+          lastActiveDate: rawStreak.lastActiveDate,
+        };
+      }
 
       return {
         ...state,
         ...action.payload,
         plan: plan || null,
         settings: mergedSettings,
+        streak: updatedStreak,
         isLoaded: true,
       };
     }

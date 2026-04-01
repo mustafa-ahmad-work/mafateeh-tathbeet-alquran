@@ -10,13 +10,20 @@ import { SURAHS } from '../data/quranMeta';
 // ─── Date Helpers ─────────────────────────────────────────
 
 export function todayISO(): string {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function addDays(date: string, days: number): string {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function daysBetween(dateA: string, dateB: string): number {
@@ -184,23 +191,37 @@ export function calculateStreak(
   const today = todayISO();
   const yesterday = addDays(today, -1);
 
-  if (completedToday && lastActiveDate === yesterday) {
-    // Continuing streak
+  if (!completedToday) {
+    // If not completed today, check if the streak is already broken from previous days
+    if (lastActiveDate && lastActiveDate < yesterday) {
+      return { current: 0, longest: longestStreak, lastActiveDate };
+    }
+    return { current: currentStreak, longest: longestStreak, lastActiveDate };
+  }
+
+  // --- COMPLETED TODAY ---
+  
+  // 1. Already updated today - no change needed
+  if (lastActiveDate === today) {
+    return { current: currentStreak, longest: longestStreak, lastActiveDate: today };
+  }
+
+  // 2. Continuing from yesterday
+  if (lastActiveDate === yesterday) {
     const newCurrent = currentStreak + 1;
     return {
       current: newCurrent,
       longest: Math.max(longestStreak, newCurrent),
       lastActiveDate: today,
     };
-  } else if (completedToday && lastActiveDate === today) {
-    // Already updated today
-    return { current: currentStreak, longest: longestStreak, lastActiveDate: today };
-  } else if (!completedToday && lastActiveDate < yesterday) {
-    // Streak broken
-    return { current: 0, longest: longestStreak, lastActiveDate: lastActiveDate };
   }
 
-  return { current: currentStreak, longest: longestStreak, lastActiveDate: lastActiveDate };
+  // 3. New streak (first time or after a break)
+  return {
+    current: 1,
+    longest: Math.max(longestStreak, 1),
+    lastActiveDate: today,
+  };
 }
 
 // ─── Arabic Number Formatter ──────────────────────────────
