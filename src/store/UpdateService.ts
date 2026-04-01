@@ -23,18 +23,20 @@ const CACHE_KEY = "@alhouson_update_cache";
 export const UpdateService = {
   CURRENT_VERSION: Constants.expoConfig?.version || "1.0.0",
 
-  CHECK_URL:
-    "https://raw.githubusercontent.com/mustafa-ahmad-work/alhousonalkhamsa/main/version.json?cachebuster=" +
-    Date.now(),
-
   /**
    * Main check function that handles remote fetching and local caching.
    */
   async checkForUpdate(): Promise<UpdateInfo | null> {
+    const freshUrl = `https://raw.githubusercontent.com/mustafa-ahmad-work/alhousonalkhamsa/main/version.json?cb=${Date.now()}`;
+    
     try {
       // 1. Try to fetch from remote
-      const response = await fetch(this.CHECK_URL, {
-        headers: { "Cache-Control": "no-cache" },
+      const response = await fetch(freshUrl, {
+        headers: { 
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        },
       });
 
       if (response.ok) {
@@ -46,7 +48,7 @@ export const UpdateService = {
         return info;
       }
     } catch (error) {
-      console.warn("Failed to catch remote update, falling back to cache:", error);
+      console.warn("Failed to fetch remote update, falling back to cache:", error);
     }
 
     // 2. Fallback to cache if offline or fetch failed

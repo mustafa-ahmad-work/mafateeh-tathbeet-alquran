@@ -18,10 +18,11 @@ import { ModuleCard } from "../components/ModuleCard";
 import { StreakBadge } from "../components/StreakBadge";
 import { useAppStore } from "../store/AppStore";
 import { useSelectionStore } from "../store/selectionStore";
-import { UpdateService } from "../store/UpdateService";
+import { UpdateService, UpdateInfo } from "../store/UpdateService";
 import { BorderRadius, Shadow, Spacing, Typography, useTheme } from "../theme";
-import { MODULES } from "../types";
+import { MODULES, TaskSelection } from "../types";
 import { getMotivationalMessage } from "../utils/helpers";
+import VersionOverlay from "../components/VersionOverlay";
 
 const { width } = Dimensions.get("window");
 
@@ -32,73 +33,24 @@ export default function DashboardScreen() {
   const { state, getMemorizedPages, getPagesDue } = useAppStore();
   const { user, streak, plan } = state;
 
-  const [updateInfo, setUpdateInfo] = React.useState<{
-    hasUpdate: boolean;
-    isMandatory: boolean;
-    isAppDisabled: boolean;
-    disabledMessage?: string;
-    version?: string;
-    changelog?: string;
-    link?: string;
-  }>({ hasUpdate: false, isMandatory: false, isAppDisabled: false });
+  const [updateInfo, setUpdateInfo] = React.useState<UpdateInfo | null>(null);
+  const [blockType, setBlockType] = React.useState<"disabled" | "force_update" | "optional_update" | null>(null);
 
   React.useEffect(() => {
     // Check for updates on mount
     const check = async () => {
       const info = await UpdateService.checkForUpdate();
       if (info) {
-        setUpdateInfo({
-          hasUpdate: info.hasUpdate,
-          isMandatory: info.isMandatory,
-          isAppDisabled: info.isAppDisabled,
-          disabledMessage: info.disabledMessage,
-          version: info.latestVersion,
-          changelog: info.changelog,
-          link: info.link,
-        });
+        setUpdateInfo(info);
+        if (info.isAppDisabled) setBlockType("disabled");
+        else if (info.isMandatory) setBlockType("force_update");
+        else if (info.hasUpdate) setBlockType("optional_update");
       }
     };
     check();
   }, []);
 
-  const renderDisabledApp = () => (
-    <View style={[StyleSheet.absoluteFill, styles.overlayContainer, { zIndex: 9999 }]}>
-      <LinearGradient colors={["#0F172A", "#020617"]} style={StyleSheet.absoluteFill} />
-      <View style={styles.overlayContent}>
-        <View style={[styles.overlayIconBox, { backgroundColor: `${Colors.red}20` }]}>
-          <Ionicons name="construct-outline" size={48} color={Colors.red} />
-        </View>
-        <Text style={styles.overlayTitle}>عذراً، التطبيق متوقف</Text>
-        <Text style={styles.overlayDesc}>{updateInfo.disabledMessage}</Text>
-        <Text style={styles.overlayHint}>يرجى مراجعة صفحاتنا الرسمية أو المحاولة لاحقاً.</Text>
-      </View>
-    </View>
-  );
 
-  const renderMandatoryUpdate = () => (
-    <View style={[StyleSheet.absoluteFill, styles.overlayContainer, { zIndex: 9999 }]}>
-      <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={StyleSheet.absoluteFill} />
-      <View style={styles.overlayContent}>
-        <View style={styles.overlayIconBoxWhite}>
-          <Ionicons name="cloud-download" size={48} color={Colors.primary} />
-        </View>
-        <Text style={[styles.overlayTitle, { color: "#FFF" }]}>تحديث إلزامي مطلوب</Text>
-        <Text style={[styles.overlayDesc, { color: "rgba(255,255,255,0.8)" }]}>
-          الإصدار الحالي قديم جداً ولم يعد مدعوماً. يرجى التحديث للاستمرار في استخدام الحصون الخمسة.
-        </Text>
-        <Text style={[styles.overlayVersion, { color: "#FFF" }]}>الإصدار الجديد: {updateInfo.version}</Text>
-        <TouchableOpacity 
-          style={styles.overlayUpdateBtn}
-          onPress={() => Linking.openURL(updateInfo.link || "https://github.com/mustafa-ahmad-work/alhousonalkhamsa/releases")}
-        >
-          <Text style={styles.overlayUpdateBtnText}>تحديث الآن</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  if (updateInfo.isAppDisabled) return renderDisabledApp();
-  if (updateInfo.isMandatory) return renderMandatoryUpdate();
 
   const isLoaded = useSelectionStore((state) => state.isLoaded);
   const loadFromStorage = useSelectionStore((state) => state.loadFromStorage);
@@ -132,6 +84,9 @@ export default function DashboardScreen() {
     ]).start();
   }, []);
 
+
+
+
   const handleModulePress = (id: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     router.push({ pathname: "/module", params: { id } } as any);
@@ -139,8 +94,8 @@ export default function DashboardScreen() {
 
   // Calculate daily completion for the Five Fortresses (Housons)
   const todayStr = new Date().toDateString();
-  const dailySelections = taskSelections.filter((s) => new Date(s.createdAt).toDateString() === todayStr);
-  const completedHousons = dailySelections.filter((s) => s.isCompleted).length;
+  const dailySelections = taskSelections.filter((s: TaskSelection) => new Date(s.createdAt).toDateString() === todayStr);
+  const completedHousons = dailySelections.filter((s: TaskSelection) => s.isCompleted).length;
   const totalHousonsCount = 5; // The 5 core system modules
   const dailyCompletionPct = dailySelections.length > 0 ? completedHousons / dailySelections.length : 0;
   // Expected Completion Logic
@@ -191,7 +146,15 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           </View>
 
-          {updateInfo.hasUpdate && (
+          {updateInfo && blockType && (
+            <VersionOverlay
+              type={blockType}
+              info={updateInfo}
+              onDismiss={() => setBlockType(null)}
+            />
+          )}
+
+          {updateInfo?.hasUpdate && !blockType && (
             <TouchableOpacity
               style={styles.updateBanner}
               onPress={() =>
@@ -215,7 +178,7 @@ export default function DashboardScreen() {
                   />
                   <View style={styles.updateTexts}>
                     <Text style={styles.updateTitle} numberOfLines={1}>
-                      تحديث جديد: {updateInfo.version}!
+                      تحديث جديد: {updateInfo.latestVersion}!
                     </Text>
                     <Text
                       style={styles.updateDesc}
