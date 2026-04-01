@@ -239,6 +239,12 @@ export default function AppExplanationScreen() {
             >
               <Ionicons name="logo-linkedin" size={20} color={Colors.primary} />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialBtn}
+              onPress={() => Linking.openURL("https://t.me/+nTRukDn0mAc2Zjc8")}
+            >
+              <Ionicons name="paper-plane" size={20} color={Colors.primary} />
+            </TouchableOpacity>
           </View>
         </View>
 
