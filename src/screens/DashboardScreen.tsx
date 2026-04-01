@@ -36,19 +36,31 @@ export default function DashboardScreen() {
   const [updateInfo, setUpdateInfo] = React.useState<UpdateInfo | null>(null);
   const [blockType, setBlockType] = React.useState<"disabled" | "force_update" | "optional_update" | null>(null);
 
-  React.useEffect(() => {
-    // Check for updates on mount
-    const check = async () => {
+  const checkVersion = React.useCallback(async () => {
+    try {
       const info = await UpdateService.checkForUpdate();
       if (info) {
         setUpdateInfo(info);
         if (info.isAppDisabled) setBlockType("disabled");
         else if (info.isMandatory) setBlockType("force_update");
         else if (info.hasUpdate) setBlockType("optional_update");
+        else setBlockType(null);
       }
-    };
-    check();
+    } catch (e) {
+      console.warn("Failed to check version:", e);
+    }
   }, []);
+
+  React.useEffect(() => {
+    checkVersion();
+    
+    // Optimized Polling: Only poll if the app is currently blocked (Maintenance/Force Update)
+    // This avoids unnecessary network requests during normal usage.
+    if (blockType === 'disabled' || blockType === 'force_update') {
+      const interval = setInterval(checkVersion, 30000); // Check every 30s while blocked
+      return () => clearInterval(interval);
+    }
+  }, [checkVersion, blockType]);
 
 
 
@@ -151,6 +163,7 @@ export default function DashboardScreen() {
               type={blockType}
               info={updateInfo}
               onDismiss={() => setBlockType(null)}
+              onRefresh={checkVersion}
             />
           )}
 

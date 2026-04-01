@@ -93,22 +93,31 @@ function MainLayout({
     "disabled" | "force_update" | "optional_update" | null
   >(null);
 
-  useEffect(() => {
-    async function checkVersion() {
-      try {
-        const info = await UpdateService.checkForUpdate();
-        if (info) {
-          setUpdateInfo(info);
-          if (info.isAppDisabled) setBlockType("disabled");
-          else if (info.isMandatory) setBlockType("force_update");
-          else if (info.hasUpdate) setBlockType("optional_update");
-        }
-      } catch (err) {
-        console.warn("[RootLayout] Update check failed:", err);
+  const checkVersion = useCallback(async () => {
+    try {
+      const info = await UpdateService.checkForUpdate();
+      if (info) {
+        setUpdateInfo(info);
+        if (info.isAppDisabled) setBlockType("disabled");
+        else if (info.isMandatory) setBlockType("force_update");
+        else if (info.hasUpdate) setBlockType("optional_update");
+        else setBlockType(null);
       }
+    } catch (err) {
+      console.warn("[RootLayout] Update check failed:", err);
     }
-    checkVersion();
   }, []);
+
+  useEffect(() => {
+    checkVersion();
+    
+    // Global Status Polling: Only poll for updates if the app is currently showing a blocking overlay.
+    // Otherwise, it only checks on app start.
+    if (blockType === "disabled" || blockType === "force_update") {
+      const interval = setInterval(checkVersion, 45000); 
+      return () => clearInterval(interval);
+    }
+  }, [checkVersion, blockType]);
 
   // Track page views
   useEffect(() => {
@@ -134,6 +143,7 @@ function MainLayout({
           type={blockType}
           info={updateInfo}
           onDismiss={() => setBlockType(null)}
+          onRefresh={checkVersion}
         />
       )}
     </View>

@@ -20,9 +20,10 @@ interface Props {
   type: 'disabled' | 'force_update' | 'optional_update';
   info: UpdateInfo;
   onDismiss?: () => void;
+  onRefresh?: () => void;
 }
 
-export default function VersionOverlay({ type, info, onDismiss }: Props) {
+export default function VersionOverlay({ type, info, onDismiss, onRefresh }: Props) {
   const Colors = useTheme();
   
   const isBlocking = type === 'disabled' || type === 'force_update';
@@ -67,6 +68,15 @@ export default function VersionOverlay({ type, info, onDismiss }: Props) {
           )}
 
           <View style={styles.actions}>
+            {type === 'disabled' && onRefresh && (
+              <TouchableOpacity
+                style={[styles.primaryBtn, { backgroundColor: Colors.primary, ...Shadow.emerald }]}
+                onPress={onRefresh}
+              >
+                <Text style={styles.primaryBtnText}>المحاولة مرة أخرى</Text>
+              </TouchableOpacity>
+            )}
+
             {type !== 'disabled' && (
               <TouchableOpacity
                 style={[styles.primaryBtn, { backgroundColor: Colors.primary, ...Shadow.emerald }]}
