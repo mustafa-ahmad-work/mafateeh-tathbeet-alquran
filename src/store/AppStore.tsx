@@ -596,6 +596,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     loadState();
     StatisticsService.trackAppLaunch();
+    StatisticsService.trackUniqueInstallation();
     NotificationService.registerForPushNotificationsAsync();
   }, []);
 

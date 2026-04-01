@@ -7,6 +7,7 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
 import { Platform } from "react-native";
 
 // TODO: Replace with your actual Firebase config
@@ -18,6 +19,7 @@ const firebaseConfig = {
   messagingSenderId: "2076143721",
   appId: "1:2076143721:web:c75bdde444e5948464b2f8",
   measurementId: "G-BS97Q7W49H",
+  databaseURL: "https://husoon-app-default-rtdb.firebaseio.com",
 };
 
 // Initialize App only if not already initialized
@@ -46,6 +48,9 @@ const getDb = () => {
 };
 
 export const db = getDb();
+
+// Initialize Realtime Database
+export const rtdb = getDatabase(app);
 
 // Initialize Analytics (Web only, fails gracefully on native if not configured)
 export const analyticsPromise = isSupported().then((supported) => {

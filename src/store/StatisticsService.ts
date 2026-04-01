@@ -8,7 +8,11 @@ import {
   onSnapshot 
 } from "firebase/firestore";
 import { logEvent } from "firebase/analytics";
-import { db, analyticsPromise } from "../firebase";
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import { ref, runTransaction } from "firebase/database";
+import { db, rtdb, analyticsPromise } from "../firebase";
 
 const STATS_DOC_ID = "main_stats";
 
@@ -122,5 +126,54 @@ export const StatisticsService = {
         callback(snapshot.data());
       }
     });
+  },
+
+  /**
+   * Tracks a unique device installation to Firestore.
+   * This runs only once per device installation.
+   */
+  async trackUniqueInstallation() {
+    try {
+      // 1. Check if already tracked locally
+      const alreadyTracked = await AsyncStorage.getItem("husoon_device_tracked");
+      if (alreadyTracked === "true") return;
+
+      // 2. Get/Create persistent device UUID
+      let deviceId = await AsyncStorage.getItem("husoon_device_uuid");
+      if (!deviceId) {
+        deviceId = 'h-' + Math.random().toString(36).substring(2, 15) + 
+                   Date.now().toString(36);
+        await AsyncStorage.setItem("husoon_device_uuid", deviceId);
+      }
+
+      // 3. Post to Firestore
+      const deviceRef = doc(db, "active_devices", deviceId);
+      const payload = {
+        deviceId,
+        platform: Platform.OS,
+        model: Constants.deviceName || "unknown",
+        firstLaunch: new Date().toISOString(),
+        appVersion: Constants.expoConfig?.version || "1.0.0",
+        createdAt: new Date(),
+      };
+
+      // We use setDoc without merge: true to effectively record "First Time" 
+      // but catch errors if we somehow try to overwrite. 
+      // Actually merge: true is safer if a user re-installs and we get the same ID somehow.
+      await setDoc(deviceRef, payload, { merge: true });
+
+      // 3.5. Increment RTDB Download Counter
+      const downloadRef = ref(rtdb, 'download-app');
+      await runTransaction(downloadRef, (currentValue) => {
+        if (currentValue === null || currentValue === undefined) return 1;
+        return Number(currentValue) + 1;
+      });
+
+      // 4. Mark as tracked
+      await AsyncStorage.setItem("husoon_device_tracked", "true");
+      console.log("[Stats] Unique device tracked:", deviceId);
+    } catch (e) {
+      console.error("[Stats] Failed unique tracking:", e);
+    }
   }
 };
