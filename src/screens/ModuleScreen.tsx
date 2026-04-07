@@ -19,6 +19,7 @@ import { MODULES, ModuleId, TaskSelection } from "../types";
 import { RangeChip } from "../components/RangeChip";
 import { SelectionScreen } from "../features/selection/SelectionScreen";
 import { TaskTimer } from "../components/TaskTimer";
+import { AudioPlayer } from "../components/AudioPlayer";
 import { formatTime } from "../utils/helpers";
 
 export default function ModuleScreen() {
@@ -31,7 +32,17 @@ export default function ModuleScreen() {
 
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [timerVisible, setTimerVisible] = useState(false);
+  const [audioPlayerVisible, setAudioPlayerVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskSelection | null>(null);
+
+  const getPagesFromTask = (task: TaskSelection | null) => {
+    if (!task) return [];
+    const pages: number[] = [];
+    task.ranges.forEach((r) => {
+      for (let p = r.start; p <= r.end; p++) pages.push(p);
+    });
+    return Array.from(new Set(pages)).sort((a, b) => a - b);
+  };
 
   const getRecommendedTime = (mId: string) => {
     switch (mId) {
@@ -217,27 +228,51 @@ export default function ModuleScreen() {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.startBtn,
-                    { borderColor: `${moduleInfo.color}30` },
-                  ]}
-                  onPress={() => {
-                    setSelectedTask(task);
-                    setTimerVisible(true);
-                  }}
-                >
-                  <Ionicons
-                    name="timer-outline"
-                    size={18}
-                    color={moduleInfo.color}
-                  />
-                  <Text
-                    style={[styles.startBtnText, { color: moduleInfo.color }]}
+                {moduleInfo.id === "listening" ? (
+                  <TouchableOpacity
+                    style={[
+                      styles.startBtn,
+                      { borderColor: `${moduleInfo.color}30` },
+                    ]}
+                    onPress={() => {
+                      setSelectedTask(task);
+                      setAudioPlayerVisible(true);
+                    }}
                   >
-                    بدء الجلسة المؤقتة
-                  </Text>
-                </TouchableOpacity>
+                    <Ionicons
+                      name="headset-outline"
+                      size={18}
+                      color={moduleInfo.color}
+                    />
+                    <Text
+                      style={[styles.startBtnText, { color: moduleInfo.color }]}
+                    >
+                      استماع لورد اليوم (الشيخ الحصري)
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[
+                      styles.startBtn,
+                      { borderColor: `${moduleInfo.color}30` },
+                    ]}
+                    onPress={() => {
+                      setSelectedTask(task);
+                      setTimerVisible(true);
+                    }}
+                  >
+                    <Ionicons
+                      name="timer-outline"
+                      size={18}
+                      color={moduleInfo.color}
+                    />
+                    <Text
+                      style={[styles.startBtnText, { color: moduleInfo.color }]}
+                    >
+                      بدء الجلسة المؤقتة
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ))
           )}
@@ -299,6 +334,13 @@ export default function ModuleScreen() {
           onClose={() => setTimerVisible(false)}
         />
       )}
+
+      <AudioPlayer
+        visible={audioPlayerVisible}
+        pages={getPagesFromTask(selectedTask)}
+        title={`الاستماع لـ ${moduleInfo.nameAr}`}
+        onClose={() => setAudioPlayerVisible(false)}
+      />
     </View>
   );
 }

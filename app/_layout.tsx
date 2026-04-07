@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFonts, Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold } from "@expo-google-fonts/tajawal";
+import { Amiri_400Regular } from "@expo-google-fonts/amiri";
 import { Stack, usePathname } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -35,6 +36,7 @@ export default function RootLayout() {
     Tajawal_400Regular,
     Tajawal_500Medium,
     Tajawal_700Bold,
+    Amiri_400Regular,
     ...Ionicons.font,
   });
 

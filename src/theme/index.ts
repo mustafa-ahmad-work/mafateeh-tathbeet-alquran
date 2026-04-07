@@ -173,6 +173,7 @@ export const Typography = {
   arabic: "Tajawal_700Bold",
   heading: "Tajawal_700Bold",
   body: "Tajawal_500Medium",
+  quran: "Amiri_400Regular",
 
   // Font sizes — refined scale with more breathing room
   xs: 11,
