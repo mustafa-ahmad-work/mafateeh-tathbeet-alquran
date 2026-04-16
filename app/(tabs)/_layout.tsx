@@ -94,22 +94,38 @@ function TabItem({
           style={[
             styles.tabContent,
             { transform: [{ scale: activeScale }] },
+            isFocused && { marginTop: -24 }
           ]}
         >
-          <View style={styles.iconContainer}>
-            <Ionicons
-              name={iconName as any}
-              size={24}
-              color={isFocused ? Colors.primary : Colors.textSecondary}
-            />
-          </View>
-
-          <Text
-            numberOfLines={1}
-            style={[styles.tabText, isFocused && styles.tabTextActive]}
-          >
-            {title}
-          </Text>
+          {isFocused ? (
+            <View style={styles.activeCircle}>
+              <Ionicons
+                name={iconName as any}
+                size={24}
+                color="#FFFFFF"
+              />
+              <Text
+                numberOfLines={1}
+                style={[styles.tabText, { color: '#FFFFFF', fontWeight: '900', marginTop: 2 }]}
+              >
+                {title}
+              </Text>
+            </View>
+          ) : (
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons
+                name={iconName as any}
+                size={22}
+                color={Colors.textSecondary}
+              />
+              <Text
+                numberOfLines={1}
+                style={styles.tabText}
+              >
+                {title}
+              </Text>
+            </View>
+          )}
         </Animated.View>
     </TouchableOpacity>
   );
@@ -118,12 +134,9 @@ function TabItem({
 function PremiumTabBar({ state: navState, descriptors, navigation }: BottomTabBarProps) {
   const Colors = useTheme();
   const styles = React.useMemo(() => getStyles(Colors), [Colors]);
-  const { state: appState } = useAppStore();
-  const isLight = appState.themeMode === 'light';
 
   return (
     <View style={styles.outerContainer}>
-
       <View style={styles.buttonsRow}>
         {navState.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -173,10 +186,9 @@ export default function TabsLayout() {
       tabBar={(props) => <PremiumTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
+      <Tabs.Screen name="progress" options={{ title: "التقدم" }} />
       <Tabs.Screen name="dashboard" options={{ title: "الرئيسية" }} />
       <Tabs.Screen name="memorization" options={{ title: "الخطة" }} />
-      <Tabs.Screen name="review" options={{ title: "فضائل القرآن" }} />
-      <Tabs.Screen name="progress" options={{ title: "التقدم" }} />
     </Tabs>
   );
 }
@@ -186,30 +198,21 @@ const getStyles = (Colors: any) =>
     // The Floating Pill bar
     outerContainer: {
       position: "absolute",
-      bottom: Platform.OS === "ios" ? 32 : 24,
+      bottom: Platform.OS === "ios" ? 40 : 30,
       left: 24,
       right: 24,
-      height: 70,
-      borderRadius: 24,
+      height: 76,
+      borderRadius: 38,
       borderWidth: 1,
       borderColor: Colors.border,
       backgroundColor: Colors.surface,
-
-      ...Platform.select({
-        ios: {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
-        },
-        android: { elevation: 3 },
-      }),
+      overflow: 'visible',
     },
     buttonsRow: {
       ...StyleSheet.absoluteFillObject,
       flexDirection: "row",
       alignItems: "center",
-      paddingHorizontal: 12,
+      paddingHorizontal: 20,
     },
 
     tabButton: {
@@ -217,16 +220,30 @@ const getStyles = (Colors: any) =>
       height: "100%",
       alignItems: "center",
       justifyContent: "center",
+      overflow: 'visible',
     },
 
     tabContent: {
       alignItems: "center",
       justifyContent: "center",
-      gap: 4,
+      gap: 2,
+      width: '100%',
+      height: '100%',
+    },
+    activeCircle: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: Colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 3,
+      borderColor: Colors.surface,
+      ...Shadow.md,
     },
 
     iconContainer: {
-      height: 32,
+      height: 28,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -241,13 +258,14 @@ const getStyles = (Colors: any) =>
 
     tabText: {
       fontFamily: Typography.body,
-      fontSize: 10,
+      fontSize: 9,
       color: Colors.textSecondary,
       textAlign: "center",
-      marginTop: 2,
+      fontWeight: '500',
     },
 
     tabTextActive: {
-      color: Colors.primary,
+      color: "#FFFFFF",
+      fontWeight: '900',
     },
   });

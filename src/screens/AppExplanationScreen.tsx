@@ -114,7 +114,7 @@ export default function AppExplanationScreen() {
         <View style={styles.sectionHeader}>
           <View style={styles.sectionLine} />
           <Text style={[styles.sectionTitle, { color: Colors.primary }]}>
-            منهجية الحصون الخمسة
+            منهجية الحفظ
           </Text>
           <View style={styles.sectionLine} />
         </View>
@@ -677,16 +677,18 @@ const getStyles = (Colors: any) =>
     },
     presentationTitle: {
       fontFamily: Typography.heading,
-      fontSize: Typography.md,
+      fontSize: 15,
       fontWeight: Typography.bold,
       color: Colors.gold,
-      marginBottom: 2,
+      marginBottom: 4,
+      lineHeight: 20,
       textAlign: "left",
     },
     presentationSubtitle: {
       fontFamily: Typography.body,
-      fontSize: Typography.sm,
+      fontSize: 11,
       color: Colors.textSecondary,
+      lineHeight: 16,
       textAlign: "left",
     },
     devCard: {

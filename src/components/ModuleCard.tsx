@@ -59,22 +59,19 @@ export function ModuleCard({ moduleInfo, onPress }: ModuleCardProps) {
           />
         </View>
         
-        {/* Modern Mini Circular Indicator */}
-        <View style={styles.miniRingBg}>
-            <View 
-                style={[
-                    styles.miniRingFill, 
-                    { 
-                        height: `${completionPct * 100}%`, 
-                        backgroundColor: completionPct === 1 ? Colors.success : moduleInfo.color 
-                    }
-                ]} 
-            />
-            {completionPct === 1 && (
-                <View style={styles.doneTick}>
-                    <Ionicons name="checkmark" size={8} color="#FFF" />
-                </View>
-            )}
+        {/* Progress Indicator Badge */}
+        <View style={styles.progressBadge}>
+          {completionPct === 1 ? (
+            <View style={styles.doneBadge}>
+              <Ionicons name="checkmark-done" size={14} color="#FFF" />
+            </View>
+          ) : completionPct > 0 ? (
+            <View style={[styles.pctPill, { backgroundColor: `${moduleInfo.color}15` }]}>
+              <Text style={[styles.pctText, { color: moduleInfo.color }]}>
+                {Math.round(completionPct * 100)}%
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
 
@@ -116,30 +113,34 @@ const getStyles = (Colors: any) =>
       marginBottom: Spacing.md,
     },
     iconWrapper: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
+      width: 44,
+      height: 44,
+      borderRadius: 14,
       alignItems: "center",
       justifyContent: "center",
+      borderWidth: 1,
+      borderColor: Colors.border,
     },
-    miniRingBg: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: `${Colors.border}30`,
+    progressBadge: {
+        alignItems: 'flex-end',
     },
-    miniRingFill: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 5,
-    },
-    doneTick: {
-        position: 'absolute',
-        top: -2,
-        right: -2,
+    doneBadge: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
         backgroundColor: Colors.success,
-        borderRadius: 4,
-        padding: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...Shadow.sm,
+    },
+    pctPill: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 8,
+    },
+    pctText: {
+        fontSize: 9,
+        fontWeight: 'bold',
     },
     content: { marginBottom: Spacing.md },
     title: {
@@ -148,14 +149,12 @@ const getStyles = (Colors: any) =>
       fontWeight: 'bold',
       color: Colors.textPrimary,
       marginBottom: 2,
-      textAlign: "left", // Force LTR
     },
     subtitle: {
       fontFamily: Typography.body,
       fontSize: 10,
       color: Colors.textSecondary,
       lineHeight: 14,
-      textAlign: "left", // Force LTR
     },
     footer: {
       flexDirection: "row",

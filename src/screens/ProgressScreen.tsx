@@ -425,12 +425,12 @@ const getStyles = (Colors: any) =>
     scroll: { padding: Spacing.xl, paddingTop: 50 },
 
     heroCard: {
-      backgroundColor: Colors.surface,
+      backgroundColor: Colors.primaryMuted,
       borderRadius: 32,
       padding: Spacing.xl,
       alignItems: "center",
       borderWidth: 1.5,
-      borderColor: Colors.border,
+      borderColor: `${Colors.primary}30`,
       marginBottom: Spacing.xl,
     },
     heroMeta: {
