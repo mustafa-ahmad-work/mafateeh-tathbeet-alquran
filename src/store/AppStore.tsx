@@ -84,6 +84,9 @@ const DEFAULT_INITIAL_STATE: AppState = {
     memorizationMethod: "standard",
     chunksPerPage: 1,
     mushafEdition: "madani_604",
+    planMode: "daily",
+    weeklyPages: 5,
+    activeDaysOfWeek: [0, 1, 2, 3, 4], // Sun-Thu
   },
 };
 
@@ -196,6 +199,9 @@ function appReducer(state: AppState, action: Action): AppState {
         editionData.surahPages
       );
       (plan as any).mushafEditionId = editionId;
+      (plan as any).planMode = cleanState.settings.planMode ?? 'daily';
+      (plan as any).activeDaysOfWeek = cleanState.settings.activeDaysOfWeek ?? [0,1,2,3,4];
+      (plan as any).weeklyPages = cleanState.settings.weeklyPages ?? 5;
 
       // Build initial page progress for all pages
       const pageProgress: PageProgress[] = [];
@@ -487,6 +493,9 @@ function appReducer(state: AppState, action: Action): AppState {
       const editionData = getMushafEdition(editionId as any);
       const newPlan = generatePlan(pageNumbers, pagesPerDay, label, direction, editionData.surahPages);
       (newPlan as any).mushafEditionId = editionId;
+      (newPlan as any).planMode = (state.settings as any).planMode ?? 'daily';
+      (newPlan as any).activeDaysOfWeek = (state.settings as any).activeDaysOfWeek ?? [0,1,2,3,4];
+      (newPlan as any).weeklyPages = (state.settings as any).weeklyPages ?? 5;
 
       // Ensure pageProgress covers all pages up to editionData.totalPages
       let newPageProgress = [...state.pageProgress];

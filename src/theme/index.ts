@@ -28,6 +28,7 @@ export const darkColors = {
   gold: "#E5A93D",
   goldLight: "#F0C76C",
   goldMuted: "rgba(229, 169, 61, 0.08)",
+  secondary: "#E5A93D",
 
   // Purple (Soft, muted)
   purple: "#9B8AFF",
@@ -106,6 +107,7 @@ export const lightColors: typeof darkColors = {
   gold: "#C7892E",
   goldLight: "#E5A93D",
   goldMuted: "rgba(199, 137, 46, 0.08)",
+  secondary: "#C7892E",
 
   // Purple
   purple: "#7C6BDB",

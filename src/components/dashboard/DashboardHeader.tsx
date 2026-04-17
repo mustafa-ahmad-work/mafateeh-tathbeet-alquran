@@ -1,7 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Spacing, Typography } from "../../theme";
 import { getMotivationalMessage } from "../../utils/helpers";
 
@@ -12,13 +19,24 @@ interface DashboardHeaderProps {
   Colors: any;
 }
 
-export function DashboardHeader({ user, fadeAnim, slideAnim, Colors }: DashboardHeaderProps) {
+export function DashboardHeader({
+  user,
+  fadeAnim,
+  slideAnim,
+  Colors,
+}: DashboardHeaderProps) {
   const styles = React.useMemo(() => getStyles(Colors), [Colors]);
   const hours = new Date().getHours();
-  const greeting = hours < 12 ? "صباح النور" : hours < 17 ? "مساء الخير" : "طابت ليلتك";
+  const greeting =
+    hours < 12 ? "صباح النور" : hours < 17 ? "مساء الخير" : "طابت ليلتك";
 
   return (
-    <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+    <Animated.View
+      style={[
+        styles.header,
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+      ]}
+    >
       <View style={styles.topRow}>
         <View style={{ width: 50 }} />
         <Image
@@ -27,8 +45,15 @@ export function DashboardHeader({ user, fadeAnim, slideAnim, Colors }: Dashboard
           resizeMode="contain"
         />
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => router.push("/settings")}>
-            <Ionicons name="settings-outline" size={20} color={Colors.textSecondary} />
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => router.push("/settings")}
+          >
+            <Ionicons
+              name="settings-outline"
+              size={20}
+              color={Colors.textSecondary}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -47,7 +72,12 @@ export function DashboardHeader({ user, fadeAnim, slideAnim, Colors }: Dashboard
       <View style={styles.quoteCard}>
         <View style={styles.quoteLine} />
         <View style={styles.quoteContent}>
-          <Ionicons name="chatbox-ellipses-outline" size={14} color={Colors.textTertiary} style={{ marginBottom: 4 }} />
+          <Ionicons
+            name="chatbox-ellipses-outline"
+            size={14}
+            color={Colors.textTertiary}
+            style={{ marginBottom: 4 }}
+          />
           <Text style={styles.quoteText}>{getMotivationalMessage()}</Text>
         </View>
       </View>
@@ -58,17 +88,71 @@ export function DashboardHeader({ user, fadeAnim, slideAnim, Colors }: Dashboard
 const getStyles = (Colors: any) =>
   StyleSheet.create({
     header: { marginBottom: Spacing.sm },
-    topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: Spacing.lg },
-    headerLogo: { width: 140, height: 40 },
+    topRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: Spacing.lg,
+    },
+    headerLogo: { width: 75, height: 75 },
     headerActions: { flexDirection: "row", gap: Spacing.md },
-    iconBtn: { width: 40, height: 40, borderRadius: 14, backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder, alignItems: "center", justifyContent: "center" },
-    greetingSection: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginBottom: Spacing.lg },
-    greetingText: { fontFamily: Typography.body, fontSize: 16, color: Colors.textSecondary },
-    userName: { fontFamily: Typography.heading, fontSize: 24, fontWeight: "bold", color: Colors.textPrimary, marginTop: 2 },
-    xpBadge: { flexDirection: "row", alignItems: "center", backgroundColor: `${Colors.gold}15`, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6, marginBottom: 4 },
+    iconBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 14,
+      backgroundColor: Colors.glass,
+      borderWidth: 1,
+      borderColor: Colors.glassBorder,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    greetingSection: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      marginBottom: Spacing.lg,
+    },
+    greetingText: {
+      fontFamily: Typography.body,
+      fontSize: 16,
+      color: Colors.textSecondary,
+    },
+    userName: {
+      fontFamily: Typography.heading,
+      fontSize: 24,
+      fontWeight: "bold",
+      color: Colors.textPrimary,
+      marginTop: 2,
+    },
+    xpBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: `${Colors.gold}15`,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 20,
+      gap: 6,
+      marginBottom: 4,
+    },
     xpBadgeText: { fontSize: 12, fontWeight: "bold", color: Colors.gold },
-    quoteCard: { flexDirection: "row", alignItems: "flex-start", gap: 12, paddingVertical: Spacing.md, paddingRight: Spacing.xl },
-    quoteLine: { width: 3, height: "100%", backgroundColor: Colors.primary, borderRadius: 2, },
+    quoteCard: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 12,
+      paddingVertical: Spacing.md,
+      paddingRight: Spacing.xl,
+    },
+    quoteLine: {
+      width: 3,
+      height: "100%",
+      backgroundColor: Colors.primary,
+      borderRadius: 2,
+    },
     quoteContent: { flex: 1 },
-    quoteText: { fontFamily: Typography.body, fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
+    quoteText: {
+      fontFamily: Typography.body,
+      fontSize: 13,
+      color: Colors.textSecondary,
+      lineHeight: 20,
+    },
   });

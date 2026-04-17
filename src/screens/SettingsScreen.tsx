@@ -28,6 +28,7 @@ import { MushafEditionPicker } from "../components/settings/MushafEditionPicker"
 import { NotificationRow } from "../components/settings/NotificationRow";
 import { PlanRangeSelector } from "../components/shared/PlanRangeSelector";
 import { SurahSelectModal } from "../components/shared/SurahSelectModal";
+import { PlanModeSelector } from "../components/settings/PlanModeSelector";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,17 @@ export default function SettingsScreen() {
   const [tempStartPage, setTempStartPage] = useState("1");
   const [tempEndPage, setTempEndPage] = useState("");
   const [planDirection, setPlanDirection] = useState<"forward" | "backward">("forward");
+
+  // Plan mode (daily / weekly)
+  const [planMode, setPlanMode] = useState<"daily" | "weekly">(
+    (state.settings as any).planMode ?? "daily",
+  );
+  const [weeklyPages, setWeeklyPages] = useState<number>(
+    (state.settings as any).weeklyPages ?? 5,
+  );
+  const [activeDaysOfWeek, setActiveDaysOfWeek] = useState<number[]>(
+    (state.settings as any).activeDaysOfWeek ?? [0, 1, 2, 3, 4],
+  );
 
   // Time picker
   const [timePickerVisible, setTimePickerVisible] = useState(false);
@@ -176,6 +188,25 @@ export default function SettingsScreen() {
       payload: { notifications: { ...state.settings.notifications, [editType]: formattedTime } },
     });
     setTimePickerVisible(false);
+  };
+
+  const applyPlanModeSettings = () => {
+    // Save mode settings to store
+    dispatch({
+      type: "UPDATE_SETTINGS",
+      payload: {
+        planMode,
+        weeklyPages,
+        activeDaysOfWeek,
+      } as any,
+    });
+    // If weekly: recalculate pagesPerActiveDay and update user dailyPages
+    if (planMode === "weekly" && activeDaysOfWeek.length > 0) {
+      const ppa = Math.max(1, Math.round(weeklyPages / activeDaysOfWeek.length));
+      dispatch({ type: "UPDATE_USER", payload: { dailyPages: ppa } });
+    }
+    // Then regenerate the plan with current page range settings
+    applyPlanChanges();
   };
 
   const applyPlanChanges = (overrideEditionId?: string) => {
@@ -322,7 +353,7 @@ export default function SettingsScreen() {
 
         {/* ── Plan Range ───────────────────────────────────────────────── */}
         <Text style={[styles.sectionTitle, { marginTop: Spacing.xl }]}>
-          إعدادات الحفظ (النطاق والاتجاه)
+          نطاق الحفظ والاتجاه
         </Text>
         <View style={styles.card}>
           <PlanRangeSelector
@@ -338,7 +369,25 @@ export default function SettingsScreen() {
             planDirection={planDirection}
             onDirectionChange={setPlanDirection}
           />
-          <TouchableOpacity style={styles.applyBtn} onPress={() => applyPlanChanges()}>
+        </View>
+
+        {/* ── Plan Mode (Daily / Weekly) ────────────────────────────────── */}
+        <Text style={[styles.sectionTitle, { marginTop: Spacing.xl }]}>
+          نوع الخطة وجدول الأيام
+        </Text>
+        <View style={styles.card}>
+          <PlanModeSelector
+            planMode={planMode}
+            onModeChange={setPlanMode}
+            weeklyPages={weeklyPages}
+            onWeeklyPagesChange={setWeeklyPages}
+            activeDaysOfWeek={activeDaysOfWeek}
+            onActiveDaysChange={setActiveDaysOfWeek}
+          />
+          <TouchableOpacity
+            style={[styles.applyBtn, { marginTop: Spacing.md }]}
+            onPress={applyPlanModeSettings}
+          >
             <Text style={styles.applyBtnText}>تطبيق الخطة الجديدة</Text>
             <Ionicons name="checkmark-done" size={20} color="#FFF" />
           </TouchableOpacity>

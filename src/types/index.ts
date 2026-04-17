@@ -29,6 +29,12 @@ export type Plan = {
   label: string;
   /** طبعة المصحف المستخدمة لبناء هذه الخطة */
   mushafEditionId?: string;
+  /** نوع الخطة: يومية أو أسبوعية */
+  planMode?: 'daily' | 'weekly';
+  /** أيام الأسبوع النشطة (0=أحد .. 6=سبت) — للخطة الأسبوعية */
+  activeDaysOfWeek?: number[];
+  /** عدد الصفحات الأسبوعية — للخطة الأسبوعية */
+  weeklyPages?: number;
 };
 
 export type DailyProgress = {
@@ -154,6 +160,12 @@ export type AppSettings = {
   chunksPerPage: number;
   /** طبعة المصحف المختارة */
   mushafEdition: 'madani_604' | 'madani_612' | 'warsh_622' | 'indopak_604' | 'tajweed_604' | 'shamerly_522';
+  /** نوع الخطة: يومية أو أسبوعية */
+  planMode: 'daily' | 'weekly';
+  /** عدد الصفحات في الأسبوع (للخطة الأسبوعية) */
+  weeklyPages: number;
+  /** أيام الأسبوع النشطة: 0=أحد، 1=اثنين ... 6=سبت */
+  activeDaysOfWeek: number[];
 };
 
 export type AppState = {

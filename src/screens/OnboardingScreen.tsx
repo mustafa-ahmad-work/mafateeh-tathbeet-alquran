@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   Animated,
   Dimensions,
+  Modal,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -11,10 +12,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Modal,
 } from "react-native";
-import { SURAHS } from "../data/quranMeta";
 import { PrimaryButton } from "../components/shared/PrimaryButton";
+import { SURAHS } from "../data/quranMeta";
 import { useAppStore } from "../store/AppStore";
 import { BorderRadius, Spacing, Typography, useTheme } from "../theme";
 import { QURAN_GOALS, UserLevel } from "../types";
@@ -68,11 +68,15 @@ export default function OnboardingScreen() {
   const [customGoal, setCustomGoal] = useState("");
   const [isCustomGoal, setIsCustomGoal] = useState(false);
   const [selectedPages, setSelectedPages] = useState<number>(1);
-  const [selectionType, setSelectionType] = useState<"range" | "surahs" | "complete">("complete");
+  const [selectionType, setSelectionType] = useState<
+    "range" | "surahs" | "complete"
+  >("complete");
   const [selectedSurahIds, setSelectedSurahIds] = useState<number[]>([]);
   const [tempStartPage, setTempStartPage] = useState("1");
   const [tempEndPage, setTempEndPage] = useState("604");
-  const [planDirection, setPlanDirection] = useState<"forward" | "backward">("forward");
+  const [planDirection, setPlanDirection] = useState<"forward" | "backward">(
+    "forward",
+  );
   const [surahModalVisible, setSurahModalVisible] = useState(false);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
   const fadeAnim = React.useRef(new Animated.Value(1)).current;
@@ -134,13 +138,18 @@ export default function OnboardingScreen() {
       for (let p = min; p <= max; p++) pages.push(p);
       label = `من صفحة ${min} إلى ${max}`;
     } else if (selectionType === "surahs") {
-      const selected = SURAHS.filter((s) => selectedSurahIds.includes(s.id)).sort((a, b) => a.id - b.id);
+      const selected = SURAHS.filter((s) =>
+        selectedSurahIds.includes(s.id),
+      ).sort((a, b) => a.id - b.id);
       selected.forEach((s) => {
         for (let p = s.startPage; p <= s.endPage; p++) {
           if (!pages.includes(p)) pages.push(p);
         }
       });
-      label = selected.length === 1 ? `سورة ${selected[0].nameAr}` : `مجموعة سور (${selected.length})`;
+      label =
+        selected.length === 1
+          ? `سورة ${selected[0].nameAr}`
+          : `مجموعة سور (${selected.length})`;
     }
 
     dispatch({
@@ -168,10 +177,7 @@ export default function OnboardingScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <View
-        
-        style={StyleSheet.absoluteFill}
-      />
+      <View style={StyleSheet.absoluteFill} />
 
       {/* Subtle decorative orbs */}
       <View style={styles.orb1} />
@@ -341,27 +347,59 @@ export default function OnboardingScreen() {
                 style={{ marginBottom: Spacing.lg, opacity: 0.85 }}
               />
               <Text style={styles.stepTitle}>ما هو هدف حفظك؟</Text>
-              <Text style={styles.stepSubtitle}>حدد النطاق والاتجاه المفضل لك</Text>
+              <Text style={styles.stepSubtitle}>
+                حدد النطاق والاتجاه المفضل لك
+              </Text>
 
-              <View style={[styles.card, { width: '100%' }]}>
+              <View style={[styles.card, { width: "100%" }]}>
                 <View style={styles.tabRow}>
-                  <TouchableOpacity 
-                    style={[styles.tab, selectionType === "complete" && styles.activeTab]}
+                  <TouchableOpacity
+                    style={[
+                      styles.tab,
+                      selectionType === "complete" && styles.activeTab,
+                    ]}
                     onPress={() => setSelectionType("complete")}
                   >
-                    <Text style={[styles.tabText, selectionType === "complete" && styles.activeTabText]}>الختم الكامل</Text>
+                    <Text
+                      style={[
+                        styles.tabText,
+                        selectionType === "complete" && styles.activeTabText,
+                      ]}
+                    >
+                      الختم الكامل
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.tab, selectionType === "surahs" && styles.activeTab]}
+                  <TouchableOpacity
+                    style={[
+                      styles.tab,
+                      selectionType === "surahs" && styles.activeTab,
+                    ]}
                     onPress={() => setSelectionType("surahs")}
                   >
-                    <Text style={[styles.tabText, selectionType === "surahs" && styles.activeTabText]}>سور محددة</Text>
+                    <Text
+                      style={[
+                        styles.tabText,
+                        selectionType === "surahs" && styles.activeTabText,
+                      ]}
+                    >
+                      سور محددة
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.tab, selectionType === "range" && styles.activeTab]}
+                  <TouchableOpacity
+                    style={[
+                      styles.tab,
+                      selectionType === "range" && styles.activeTab,
+                    ]}
                     onPress={() => setSelectionType("range")}
                   >
-                    <Text style={[styles.tabText, selectionType === "range" && styles.activeTabText]}>نطاق صفحات</Text>
+                    <Text
+                      style={[
+                        styles.tabText,
+                        selectionType === "range" && styles.activeTabText,
+                      ]}
+                    >
+                      نطاق صفحات
+                    </Text>
                   </TouchableOpacity>
                 </View>
 
@@ -369,9 +407,9 @@ export default function OnboardingScreen() {
                   <View style={styles.rangeInputs}>
                     <View style={styles.inputGroup}>
                       <Text style={styles.inputLabelSmall}>من صفحة</Text>
-                      <TextInput 
-                        style={styles.smallInput} 
-                        value={tempStartPage} 
+                      <TextInput
+                        style={styles.smallInput}
+                        value={tempStartPage}
                         onChangeText={setTempStartPage}
                         keyboardType="numeric"
                         placeholder="1"
@@ -379,9 +417,9 @@ export default function OnboardingScreen() {
                     </View>
                     <View style={styles.inputGroup}>
                       <Text style={styles.inputLabelSmall}>إلى صفحة</Text>
-                      <TextInput 
-                        style={styles.smallInput} 
-                        value={tempEndPage} 
+                      <TextInput
+                        style={styles.smallInput}
+                        value={tempEndPage}
                         onChangeText={setTempEndPage}
                         keyboardType="numeric"
                         placeholder="604"
@@ -391,19 +429,29 @@ export default function OnboardingScreen() {
                 )}
 
                 {selectionType === "surahs" && (
-                  <TouchableOpacity 
-                    style={styles.surahSelectBtn} 
+                  <TouchableOpacity
+                    style={styles.surahSelectBtn}
                     onPress={() => setSurahModalVisible(true)}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
                       <Ionicons name="list" size={18} color={Colors.primary} />
                       <Text style={styles.surahSelectText}>
-                        {selectedSurahIds.length === 0 
-                          ? "اختر السور التي تود حفظها" 
+                        {selectedSurahIds.length === 0
+                          ? "اختر السور التي تود حفظها"
                           : `تم اختيار ${selectedSurahIds.length} سورة`}
                       </Text>
                     </View>
-                    <Ionicons name="chevron-back" size={16} color={Colors.textTertiary} />
+                    <Ionicons
+                      name="chevron-back"
+                      size={16}
+                      color={Colors.textTertiary}
+                    />
                   </TouchableOpacity>
                 )}
 
@@ -412,17 +460,37 @@ export default function OnboardingScreen() {
                 <View style={styles.directionRow}>
                   <Text style={styles.inputLabelSmall}>اتجاه الحفظ</Text>
                   <View style={styles.directionToggle}>
-                    <TouchableOpacity 
-                      style={[styles.dirBtn, planDirection === "forward" && styles.activeDirBtn]}
+                    <TouchableOpacity
+                      style={[
+                        styles.dirBtn,
+                        planDirection === "forward" && styles.activeDirBtn,
+                      ]}
                       onPress={() => setPlanDirection("forward")}
                     >
-                      <Text style={[styles.dirText, planDirection === "forward" && styles.activeDirText]}>من الفاتحة للناس</Text>
+                      <Text
+                        style={[
+                          styles.dirText,
+                          planDirection === "forward" && styles.activeDirText,
+                        ]}
+                      >
+                        من الفاتحة للناس
+                      </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[styles.dirBtn, planDirection === "backward" && styles.activeDirBtn]}
+                    <TouchableOpacity
+                      style={[
+                        styles.dirBtn,
+                        planDirection === "backward" && styles.activeDirBtn,
+                      ]}
                       onPress={() => setPlanDirection("backward")}
                     >
-                      <Text style={[styles.dirText, planDirection === "backward" && styles.activeDirText]}>من الناس للفاتحة</Text>
+                      <Text
+                        style={[
+                          styles.dirText,
+                          planDirection === "backward" && styles.activeDirText,
+                        ]}
+                      >
+                        من الناس للفاتحة
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -475,9 +543,10 @@ export default function OnboardingScreen() {
                   {selectedGoal && selectedPages > 0
                     ? `تقريباً ${Math.ceil(
                         (() => {
-                           // ... estimating total items ...
-                           const count = selectionType === "complete" ? 604 : 100; // Simplified
-                           return count / selectedPages;
+                          // ... estimating total items ...
+                          const count =
+                            selectionType === "complete" ? 604 : 100; // Simplified
+                          return count / selectedPages;
                         })(),
                       )} يوم`
                     : "—"}
@@ -517,8 +586,10 @@ export default function OnboardingScreen() {
                   <Text style={styles.summaryValue}>
                     {(() => {
                       if (selectionType === "complete") return "القرآن كاملاً";
-                      if (selectionType === "range") return `من ص ${tempStartPage} إلى ${tempEndPage}`;
-                      if (selectionType === "surahs") return `مجموعة سور (${selectedSurahIds.length})`;
+                      if (selectionType === "range")
+                        return `من ص ${tempStartPage} إلى ${tempEndPage}`;
+                      if (selectionType === "surahs")
+                        return `مجموعة سور (${selectedSurahIds.length})`;
                       return "—";
                     })()}
                   </Text>
@@ -533,13 +604,20 @@ export default function OnboardingScreen() {
                 <View style={[styles.summaryRow, { borderBottomWidth: 0 }]}>
                   <Text style={styles.summaryLabel}>الاتجاه</Text>
                   <Text style={styles.summaryValue}>
-                    {planDirection === "forward" ? "من الفاتحة للناس" : "من الناس للفاتحة"}
+                    {planDirection === "forward"
+                      ? "من الفاتحة للناس"
+                      : "من الناس للفاتحة"}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.planPreviewBox}>
-                <Ionicons name="information-circle-outline" size={16} color={Colors.textTertiary} style={{ marginBottom: 4 }} />
+                <Ionicons
+                  name="information-circle-outline"
+                  size={16}
+                  color={Colors.textTertiary}
+                  style={{ marginBottom: 4 }}
+                />
                 <Text style={styles.planPreviewText}>
                   {(() => {
                     const pagesPerDay = selectedPages;
@@ -561,7 +639,7 @@ export default function OnboardingScreen() {
       {/* Surah Selection Modal (Multi-select) */}
       <Modal visible={surahModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { height: "90%", width: '90%' }]}>
+          <View style={[styles.modalContent, { height: "90%", width: "90%" }]}>
             <Text style={styles.modalTitle}>اختر السور</Text>
             <ScrollView showsVerticalScrollIndicator={false}>
               {SURAHS.map((surah) => {
@@ -569,21 +647,33 @@ export default function OnboardingScreen() {
                 return (
                   <TouchableOpacity
                     key={surah.id}
-                    style={[styles.surahItem, isSelected && { backgroundColor: `${Colors.primary}10` }]}
+                    style={[
+                      styles.surahItem,
+                      isSelected && { backgroundColor: `${Colors.primary}10` },
+                    ]}
                     onPress={() => {
                       if (isSelected) {
-                        setSelectedSurahIds(selectedSurahIds.filter(id => id !== surah.id));
+                        setSelectedSurahIds(
+                          selectedSurahIds.filter((id) => id !== surah.id),
+                        );
                       } else {
                         setSelectedSurahIds([...selectedSurahIds, surah.id]);
                       }
                     }}
                   >
-                    <Ionicons 
-                      name={isSelected ? "checkbox" : "square-outline"} 
-                      size={20} 
-                      color={isSelected ? Colors.primary : Colors.textTertiary} 
+                    <Ionicons
+                      name={isSelected ? "checkbox" : "square-outline"}
+                      size={20}
+                      color={isSelected ? Colors.primary : Colors.textTertiary}
                     />
-                    <Text style={[styles.surahNameAr, isSelected && { color: Colors.primary }]}>{surah.nameAr}</Text>
+                    <Text
+                      style={[
+                        styles.surahNameAr,
+                        isSelected && { color: Colors.primary },
+                      ]}
+                    >
+                      {surah.nameAr}
+                    </Text>
                     <Text style={styles.surahNumber}>{surah.id}</Text>
                   </TouchableOpacity>
                 );
@@ -591,10 +681,15 @@ export default function OnboardingScreen() {
             </ScrollView>
             <View style={styles.modalActions}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: Colors.primary }]}
+                style={[
+                  styles.modalButton,
+                  { backgroundColor: Colors.primary },
+                ]}
                 onPress={() => setSurahModalVisible(false)}
               >
-                <Text style={{ color: '#FFF', fontWeight: 'bold' }}>تم الاختيار</Text>
+                <Text style={{ color: "#FFF", fontWeight: "bold" }}>
+                  تم الاختيار
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -702,14 +797,16 @@ const getStyles = (Colors: typeof darkColors) =>
       textAlign: "center",
     },
     appSubtitle: {
-      fontFamily: Typography.body, fontSize: Typography.base,
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
       color: Colors.textSecondary,
       textAlign: "center",
       marginTop: Spacing.sm,
       marginBottom: Spacing["sm"],
     },
     stepSubtitle: {
-      fontFamily: Typography.body, fontSize: Typography.base,
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
       color: Colors.textSecondary,
       textAlign: "center",
       marginBottom: Spacing.xl,
@@ -719,7 +816,8 @@ const getStyles = (Colors: typeof darkColors) =>
       marginBottom: Spacing.xl,
     },
     inputLabel: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       color: Colors.textTertiary,
       textAlign: "left",
       marginBottom: Spacing.sm,
@@ -732,8 +830,9 @@ const getStyles = (Colors: typeof darkColors) =>
       paddingHorizontal: Spacing.base,
       paddingVertical: Spacing.md,
       color: Colors.textPrimary,
-      fontFamily: Typography.body, fontSize: Typography.base,
-      textAlign: "left",
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
+      textAlign: "right",
     },
     featuresList: {
       width: "100%",
@@ -752,7 +851,8 @@ const getStyles = (Colors: typeof darkColors) =>
       paddingVertical: Spacing.md,
     },
     featureText: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       color: Colors.textSecondary,
       flex: 1,
       textAlign: "left",
@@ -779,12 +879,14 @@ const getStyles = (Colors: typeof darkColors) =>
       alignItems: "flex-start",
     },
     optionLabel: {
-      fontFamily: Typography.body, fontSize: Typography.base,
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
       fontWeight: Typography.medium,
       color: Colors.textPrimary,
     },
     optionDescription: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       color: Colors.textTertiary,
       marginTop: 2,
     },
@@ -810,7 +912,8 @@ const getStyles = (Colors: typeof darkColors) =>
       marginBottom: Spacing.sm,
     },
     goalText: {
-      fontFamily: Typography.body, fontSize: Typography.base,
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
       color: Colors.textPrimary,
       textAlign: "left",
       flex: 1,
@@ -838,12 +941,14 @@ const getStyles = (Colors: typeof darkColors) =>
       backgroundColor: Colors.primaryMuted,
     },
     pageNum: {
-      fontFamily: Typography.heading, fontSize: Typography.lg,
+      fontFamily: Typography.heading,
+      fontSize: Typography.lg,
       fontWeight: Typography.semibold,
       color: Colors.textPrimary,
     },
     pageLabel: {
-      fontFamily: Typography.body, fontSize: 10,
+      fontFamily: Typography.body,
+      fontSize: 10,
       color: Colors.textTertiary,
       textAlign: "center",
     },
@@ -857,12 +962,14 @@ const getStyles = (Colors: typeof darkColors) =>
       alignItems: "center",
     },
     estimateLabel: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       color: Colors.textSecondary,
       marginBottom: 3,
     },
     estimateValue: {
-      fontFamily: Typography.heading, fontSize: Typography.lg,
+      fontFamily: Typography.heading,
+      fontSize: Typography.lg,
       fontWeight: Typography.semibold,
       color: Colors.primary,
     },
@@ -877,7 +984,8 @@ const getStyles = (Colors: typeof darkColors) =>
       gap: Spacing.sm,
     },
     summaryTitle: {
-      fontFamily: Typography.heading, fontSize: Typography.base,
+      fontFamily: Typography.heading,
+      fontSize: Typography.base,
       fontWeight: Typography.semibold,
       color: Colors.textPrimary,
       textAlign: "left",
@@ -892,18 +1000,21 @@ const getStyles = (Colors: typeof darkColors) =>
       borderBottomColor: Colors.border,
     },
     summaryLabel: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       color: Colors.textTertiary,
       textAlign: "right",
     },
     summaryValue: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       fontWeight: Typography.medium,
       color: Colors.textPrimary,
       textAlign: "right",
     },
     hadith: {
-      fontFamily: Typography.body, fontSize: Typography.base,
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
       color: Colors.primary,
       textAlign: "center",
       fontStyle: "italic",
@@ -935,7 +1046,8 @@ const getStyles = (Colors: typeof darkColors) =>
       borderColor: Colors.glassBorder,
     },
     label: {
-      fontFamily: Typography.body, fontSize: Typography.sm,
+      fontFamily: Typography.body,
+      fontSize: Typography.sm,
       color: Colors.textTertiary,
       textAlign: "left",
     },
@@ -958,7 +1070,11 @@ const getStyles = (Colors: typeof darkColors) =>
       borderRadius: BorderRadius.md,
     },
     activeTab: { backgroundColor: Colors.surface },
-    tabText: { fontFamily: Typography.body, fontSize: 10, color: Colors.textTertiary },
+    tabText: {
+      fontFamily: Typography.body,
+      fontSize: 10,
+      color: Colors.textTertiary,
+    },
     activeTabText: { color: Colors.primary, fontWeight: "bold" },
     rangeInputs: {
       flexDirection: "row",
@@ -968,7 +1084,8 @@ const getStyles = (Colors: typeof darkColors) =>
     },
     inputGroup: { flex: 1 },
     inputLabelSmall: {
-      fontFamily: Typography.body, fontSize: 9,
+      fontFamily: Typography.body,
+      fontSize: 9,
       color: Colors.textTertiary,
       marginBottom: 4,
       textAlign: "right",
@@ -993,7 +1110,11 @@ const getStyles = (Colors: typeof darkColors) =>
       borderColor: Colors.border,
       marginBottom: Spacing.md,
     },
-    surahSelectText: { fontFamily: Typography.body, fontSize: 13, color: Colors.textPrimary },
+    surahSelectText: {
+      fontFamily: Typography.body,
+      fontSize: 13,
+      color: Colors.textPrimary,
+    },
     directionRow: { marginBottom: Spacing.md },
     directionToggle: { flexDirection: "row", gap: Spacing.sm, marginTop: 8 },
     dirBtn: {
@@ -1009,7 +1130,11 @@ const getStyles = (Colors: typeof darkColors) =>
       borderColor: Colors.primary,
       backgroundColor: `${Colors.primary}05`,
     },
-    dirText: { fontFamily: Typography.body, fontSize: 11, color: Colors.textSecondary },
+    dirText: {
+      fontFamily: Typography.body,
+      fontSize: 11,
+      color: Colors.textSecondary,
+    },
     activeDirText: { color: Colors.primary, fontWeight: "bold" },
     modalOverlay: {
       flex: 1,
@@ -1025,7 +1150,8 @@ const getStyles = (Colors: typeof darkColors) =>
       borderColor: Colors.glassBorder,
     },
     modalTitle: {
-      fontFamily: Typography.heading, fontSize: Typography.lg,
+      fontFamily: Typography.heading,
+      fontSize: Typography.lg,
       fontWeight: Typography.bold,
       color: Colors.textPrimary,
       marginBottom: Spacing.lg,
@@ -1051,13 +1177,15 @@ const getStyles = (Colors: typeof darkColors) =>
     },
     surahNumber: {
       width: 30,
-      fontFamily: Typography.body, fontSize: Typography.xs,
+      fontFamily: Typography.body,
+      fontSize: Typography.xs,
       color: Colors.textTertiary,
       textAlign: "center",
     },
     surahNameAr: {
       flex: 1,
-      fontFamily: Typography.body, fontSize: Typography.base,
+      fontFamily: Typography.body,
+      fontSize: Typography.base,
       color: Colors.textPrimary,
       fontWeight: Typography.medium,
       textAlign: "right",
@@ -1073,7 +1201,8 @@ const getStyles = (Colors: typeof darkColors) =>
       borderStyle: "dashed",
     },
     planPreviewText: {
-      fontFamily: Typography.body, fontSize: Typography.xs,
+      fontFamily: Typography.body,
+      fontSize: Typography.xs,
       color: Colors.textSecondary,
       textAlign: "center",
       lineHeight: 18,
