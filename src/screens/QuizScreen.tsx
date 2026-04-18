@@ -18,10 +18,7 @@ import { toArabicNumerals } from "../utils/helpers";
 
 const { width } = Dimensions.get("window");
 
-interface Verse {
-  verse_key: string;
-  text_uthmani: string;
-}
+import { QuranStore, Verse } from "../store/QuranStore";
 
 export default function QuizScreen() {
   const Colors = useTheme();
@@ -33,69 +30,6 @@ export default function QuizScreen() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchVersesForPage = async (page: number): Promise<Verse[]> => {
-    try {
-      const res = await fetch(
-        `https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${page}`,
-      );
-      if (res.ok) {
-        const data = await res.json();
-        return data.verses;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    return [];
-  };
-
-  const generateQuestion = async () => {
-    if (memorizedPages.length === 0) return null;
-    setIsLoading(true);
-
-    try {
-      const randomPageObj =
-        memorizedPages[Math.floor(Math.random() * memorizedPages.length)];
-      const verses = await fetchVersesForPage(randomPageObj.pageNumber);
-
-      if (verses.length < 4) {
-        setIsLoading(false);
-        return generateQuestion(); // Try another page if this one is too short (unlikely for most pages)
-      }
-
-      // Pick a range: Start verse i, skip N verses, target verse i+N+1
-      const gapSize = Math.random() > 0.5 ? 3 : 5;
-      const totalNeeded = gapSize + 2;
-
-      if (verses.length < totalNeeded) {
-        setIsLoading(false);
-        return generateQuestion();
-      }
-
-      const startIdx = Math.floor(
-        Math.random() * (verses.length - (totalNeeded - 1)),
-      );
-      const startVerse = verses[startIdx];
-      const gapVerses = verses.slice(startIdx + 1, startIdx + gapSize + 1);
-      const targetVerse = verses[startIdx + gapSize + 1];
-
-      const surah = SURAHS.find(
-        (s) =>
-          randomPageObj.pageNumber >= s.startPage &&
-          randomPageObj.pageNumber <= s.endPage,
-      );
-
-      return {
-        startVerse,
-        gapVerses,
-        targetVerse,
-        surahName: surah?.nameAr,
-        gapSize,
-      };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const startNewQuestion = async () => {
     setShowAnswer(false);
     const q = await generateQuestion();
@@ -105,6 +39,57 @@ export default function QuizScreen() {
   useEffect(() => {
     startNewQuestion();
   }, []);
+
+  const generateQuestion = async (): Promise<any> => {
+    if (memorizedPages.length === 0) return null;
+    setIsLoading(true);
+
+    try {
+      let attempts = 0;
+      while (attempts < 10) {
+        attempts++;
+        const randomPageObj =
+          memorizedPages[Math.floor(Math.random() * memorizedPages.length)];
+        
+        const verses = await QuranStore.getVerses(randomPageObj.pageNumber);
+
+        if (verses.length < 4) continue;
+
+        const gapSize = Math.random() > 0.5 ? 3 : 5;
+        const totalNeeded = gapSize + 2;
+
+        if (verses.length < totalNeeded) continue;
+
+        const startIdx = Math.floor(
+          Math.random() * (verses.length - (totalNeeded - 1)),
+        );
+        const startVerse = verses[startIdx];
+        const gapVerses = verses.slice(startIdx + 1, startIdx + gapSize + 1);
+        const targetVerse = verses[startIdx + gapSize + 1];
+
+        const surah = SURAHS.find(
+          (s) =>
+            randomPageObj.pageNumber >= s.startPage &&
+            randomPageObj.pageNumber <= s.endPage,
+        );
+
+        return {
+          startVerse,
+          gapVerses,
+          targetVerse,
+          surahName: surah?.nameAr,
+          gapSize,
+        };
+      }
+      return null;
+    } catch (e) {
+      console.error("Error generating question", e);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   if (memorizedPages.length === 0) {
     return (
@@ -415,6 +400,39 @@ const getStyles = (Colors: any) =>
       gap: Spacing.lg,
     },
     loaderText: { color: Colors.textSecondary, fontSize: 14 },
+    offlineWarning: {
+      backgroundColor: `${Colors.primary}10`,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: Spacing.lg,
+      borderWidth: 1,
+      borderColor: `${Colors.primary}20`,
+    },
+    offlineTitle: {
+      fontFamily: Typography.heading,
+      fontSize: 14,
+      color: Colors.textPrimary,
+      textAlign: "right",
+    },
+    offlineSub: {
+      fontFamily: Typography.body,
+      fontSize: 12,
+      color: Colors.textSecondary,
+      textAlign: "right",
+      marginTop: 2,
+    },
+    downloadBtn: {
+      backgroundColor: Colors.primary,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 10,
+    },
+    downloadBtnText: { color: "#FFF", fontWeight: "bold", fontSize: 13 },
     emptyContainer: {
       height: 500,
       justifyContent: "center",
