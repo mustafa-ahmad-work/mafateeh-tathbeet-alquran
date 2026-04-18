@@ -191,12 +191,13 @@ export default function SettingsScreen() {
   };
 
   const applyPlanModeSettings = () => {
-    // Save mode settings to store
+    const finalActiveDays =
+      planMode === "daily" ? [0, 1, 2, 3, 4, 5, 6] : activeDaysOfWeek;
     dispatch({
       type: "UPDATE_SETTINGS",
       payload: {
         planMode,
-        activeDaysOfWeek,
+        activeDaysOfWeek: finalActiveDays,
       } as any,
     });
     // Update user dailyPages

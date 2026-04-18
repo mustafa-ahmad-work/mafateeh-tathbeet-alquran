@@ -85,7 +85,7 @@ const DEFAULT_INITIAL_STATE: AppState = {
     chunksPerPage: 1,
     mushafEdition: "madani_604",
     planMode: "daily",
-    activeDaysOfWeek: [0, 1, 2, 3, 4], // Sun-Thu
+    activeDaysOfWeek: [0, 1, 2, 3, 4, 5, 6], // Every day by default for Daily Plan
   },
 };
 

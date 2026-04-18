@@ -270,7 +270,7 @@ function CustomSplashScreen({ onFinish }: { onFinish: () => void }) {
 
       {/* Bottom Quote */}
       <Animated.View style={[styles.bottomQuote, { opacity: starAnim }]}>
-        <Text style={styles.quoteText}>"اقرأ وارقَ ورتِّل"</Text>
+        <Text style={styles.quoteText}>اقرأ وارقَ ورتِّل</Text>
       </Animated.View>
     </Animated.View>
   );

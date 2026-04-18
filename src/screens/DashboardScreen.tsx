@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -25,17 +25,17 @@ const { width } = Dimensions.get("window");
 
 export default function DashboardScreen() {
   const Colors = useTheme();
-  const styles = React.useMemo(() => getStyles(Colors), [Colors]);
+  const styles = useMemo(() => getStyles(Colors), [Colors]);
 
   const { state, getMemorizedPages, getPagesDue } = useAppStore();
   const { user, streak, plan } = state;
 
-  const [updateInfo, setUpdateInfo] = React.useState<UpdateInfo | null>(null);
-  const [blockType, setBlockType] = React.useState<
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [blockType, setBlockType] = useState<
     "disabled" | "force_update" | "optional_update" | null
   >(null);
 
-  const checkVersion = React.useCallback(async () => {
+  const checkVersion = useCallback(async () => {
     try {
       const info = await UpdateService.checkForUpdate();
       if (info) {

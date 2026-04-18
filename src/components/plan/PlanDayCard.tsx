@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { Shadow, Spacing, Typography, useTheme } from "../../theme";
+import { Spacing, Typography, useTheme } from "../../theme";
 import { toArabicNumerals } from "../../utils/helpers";
 import type { DayItem, DayTask } from "./types";
 
@@ -44,13 +44,12 @@ const TaskRow = ({
     onPress={() => {
       if (isLocked) return;
       const dest = MODULE_MAP[task.id];
-      if (dest) router.push({ pathname: "/module", params: { id: dest } } as any);
+      if (dest)
+        router.push({ pathname: "/module", params: { id: dest } } as any);
     }}
     activeOpacity={isLocked ? 1 : 0.7}
   >
-    <View
-      style={[styles.taskIconBox, { backgroundColor: `${task.color}12` }]}
-    >
+    <View style={[styles.taskIconBox, { backgroundColor: `${task.color}12` }]}>
       <Ionicons name={task.icon} size={14} color={task.color} />
     </View>
     <Text style={styles.taskText}>{task.label}</Text>
@@ -117,11 +116,11 @@ export const PlanDayCard = React.memo(function PlanDayCard({
                 borderWidth: 2.5,
               },
               isToday && {
-                shadowColor: Colors.primary,
-                shadowOpacity: 0.5,
-                shadowRadius: 5,
+                // shadowColor: Colors.primary,
+                // shadowOpacity: 0.5,
+                // shadowRadius: 5,
                 elevation: 5,
-              }
+              },
             ]}
           >
             {item.isCompleted ? (
@@ -165,7 +164,12 @@ export const PlanDayCard = React.memo(function PlanDayCard({
             {/* Day number badge */}
             <View style={styles.dayNumBadge}>
               {dowLabel ? (
-                <Text style={[styles.dowLabel, isToday && { color: Colors.primary, fontWeight: 'bold' }]}>
+                <Text
+                  style={[
+                    styles.dowLabel,
+                    isToday && { color: Colors.primary, fontWeight: "bold" },
+                  ]}
+                >
                   {dowLabel}
                 </Text>
               ) : (
@@ -173,7 +177,7 @@ export const PlanDayCard = React.memo(function PlanDayCard({
                   style={[
                     styles.dayNumText,
                     item.isCurrent && { color: Colors.primary },
-                    isToday && { fontWeight: '900' }
+                    isToday && { fontWeight: "900" },
                   ]}
                 >
                   {toArabicNumerals(item.dayIndex)}
@@ -198,7 +202,7 @@ export const PlanDayCard = React.memo(function PlanDayCard({
                   </View>
                 )}
                 {item.isCurrent && !isToday && (
-                   <View
+                  <View
                     style={[styles.badge, { backgroundColor: Colors.gold }]}
                   >
                     <Text style={styles.badgeText}>المطلوب</Text>
@@ -268,7 +272,12 @@ export const PlanDayCard = React.memo(function PlanDayCard({
               <Text style={styles.tasksTitle}>مهام هذا اليوم</Text>
               <View style={styles.tasksList}>
                 {item.tasks.map((task) => (
-                  <TaskRow key={task.id} task={task} styles={styles} isLocked={item.isLocked} />
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    styles={styles}
+                    isLocked={item.isLocked}
+                  />
                 ))}
               </View>
 
@@ -276,14 +285,24 @@ export const PlanDayCard = React.memo(function PlanDayCard({
                 <TouchableOpacity
                   style={[
                     styles.completeBtn,
-                    { backgroundColor: item.isLocked ? Colors.textTertiary : Colors.primary },
+                    {
+                      backgroundColor: item.isLocked
+                        ? Colors.textTertiary
+                        : Colors.primary,
+                    },
                   ]}
-                  onPress={() => item.isLocked ? null : onComplete(item)}
+                  onPress={() => (item.isLocked ? null : onComplete(item))}
                   activeOpacity={item.isLocked ? 1 : 0.7}
                 >
-                  <Ionicons name={item.isLocked ? "lock-closed" : "checkmark-circle"} size={22} color="#FFF" />
+                  <Ionicons
+                    name={item.isLocked ? "lock-closed" : "checkmark-circle"}
+                    size={22}
+                    color="#FFF"
+                  />
                   <Text style={styles.completeBtnText}>
-                    {item.isLocked ? "شريط المهام مغلق (يفتح غداً)" : "إتمام كافة مهام اليوم"}
+                    {item.isLocked
+                      ? "شريط المهام مغلق (يفتح غداً)"
+                      : "إتمام كافة مهام اليوم"}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -348,7 +367,7 @@ const getStyles = (Colors: any) =>
       backgroundColor: Colors.surface,
       marginBottom: 18,
       marginRight: Spacing.sm,
-      ...Shadow.sm,
+      // ...Shadow.sm,
       overflow: "hidden",
     },
     cardTouchable: { padding: Spacing.md },

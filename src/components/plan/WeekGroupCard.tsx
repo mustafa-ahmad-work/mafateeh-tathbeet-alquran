@@ -2,13 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import {
-  BorderRadius,
-  Shadow,
-  Spacing,
-  Typography,
-  useTheme,
-} from "../../theme";
+import { BorderRadius, Spacing, Typography, useTheme } from "../../theme";
 import { toArabicNumerals } from "../../utils/helpers";
 import { PlanDayCard } from "./PlanDayCard";
 import type { DayItem, WeekGroup } from "./types";
@@ -67,7 +61,7 @@ const RestDayCard = ({
           {isToday && (
             <View
               style={{
-                backgroundColor: Colors.primary,
+                // backgroundColor: Colors.primary,
                 paddingHorizontal: 6,
                 paddingVertical: 1,
                 borderRadius: 4,
@@ -350,7 +344,7 @@ const getStyles = (Colors: any) =>
       backgroundColor: Colors.surface,
       marginBottom: Spacing.lg,
       overflow: "hidden",
-      ...Shadow.sm,
+      // ...Shadow.sm,
     },
     weekHeader: {
       padding: Spacing.md,

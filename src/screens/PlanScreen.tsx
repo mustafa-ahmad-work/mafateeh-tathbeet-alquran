@@ -24,7 +24,7 @@ import { getMushafEdition } from "../data/mushafEditions";
 import { SURAHS } from "../data/quranMeta";
 import { useAppStore } from "../store/AppStore";
 import { useSelectionStore } from "../store/selectionStore";
-import { Shadow, Spacing, Typography, useTheme } from "../theme";
+import { Spacing, Typography, useTheme } from "../theme";
 import {
   getMotivationalMessage,
   toArabicNumerals,
@@ -108,7 +108,6 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
           borderRadius: 32,
           padding: 32,
           alignItems: "center",
-          ...Shadow.lg,
           borderWidth: 1,
           borderColor: Colors.borderLight,
         }}
@@ -187,7 +186,6 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
             paddingVertical: 16,
             borderRadius: 18,
             alignItems: "center",
-            ...Shadow.emerald,
           }}
         >
           <Text
@@ -210,62 +208,8 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
 // Helpers
 // ============================================================
 
-function buildRanges(pages: number[]): { start: number; end: number }[] {
-  if (!pages.length) return [];
-  const res: { start: number; end: number }[] = [];
-  let s = pages[0],
-    e = pages[0];
-  for (let i = 1; i < pages.length; i++) {
-    if (pages[i] === e + 1) {
-      e = pages[i];
-    } else {
-      res.push({ start: s, end: e });
-      s = pages[i];
-      e = pages[i];
-    }
-  }
-  res.push({ start: s, end: e });
-  return res;
-}
-
-function formatRanges(ranges: { start: number; end: number }[]): string {
-  return ranges
-    .map((r) =>
-      r.start === r.end
-        ? toArabicNumerals(r.start)
-        : `${toArabicNumerals(r.start)}-${toArabicNumerals(r.end)}`,
-    )
-    .join(" و ");
-}
-
-function getSurahSegments(
-  pages: number[],
-  edition: MushafEdition,
-): SurahSegment[] {
-  const pageSet = new Set(pages);
-  const segments: SurahSegment[] = [];
-
-  const surahEntries = Object.entries(edition.surahPages)
-    .map(([id, [s, e]]) => ({ id: Number(id), startPage: s, endPage: e }))
-    .sort((a, b) => a.id - b.id);
-
-  surahEntries.forEach(({ id, startPage, endPage }) => {
-    const surahPages: number[] = [];
-    for (let p = startPage; p <= endPage; p++) {
-      if (pageSet.has(p)) surahPages.push(p);
-    }
-    if (surahPages.length > 0) {
-      const surahMeta = SURAHS.find((s) => s.id === id);
-      segments.push({
-        surahId: id,
-        nameAr: surahMeta?.nameAr ?? `سورة ${id}`,
-        pages: surahPages,
-      });
-    }
-  });
-
-  return segments;
-}
+// Shared helpers imported from ../utils/planLogic
+import { buildRanges, formatRanges, getSurahSegments } from "../utils/planLogic";
 
 // ─── Build weekly calendar groups ────────────────────────────────────────────
 function buildWeeklyCalendar(
@@ -273,8 +217,11 @@ function buildWeeklyCalendar(
   roadmap: DayItem[],
   settingsActiveDays: number[],
 ): WeekGroup[] {
+  const isDaily = plan?.planMode === "daily";
   const activeDows = new Set<number>(
-    plan?.activeDaysOfWeek ?? settingsActiveDays ?? [0, 1, 2, 3, 4],
+    isDaily
+      ? [0, 1, 2, 3, 4, 5, 6]
+      : plan?.activeDaysOfWeek ?? settingsActiveDays ?? [0, 1, 2, 3, 4],
   );
 
   if (activeDows.size === 0) return [];
@@ -407,7 +354,7 @@ const viewToggleStyle = StyleSheet.create({
 
 export default function PlanScreen() {
   const Colors = useTheme();
-  const styles = React.useMemo(() => getStyles(Colors), [Colors]);
+  const styles = useMemo(() => getStyles(Colors), [Colors]);
   const { state, dispatch } = useAppStore();
   const selectionStore = useSelectionStore();
   const { plan, pageProgress } = state;
@@ -472,8 +419,11 @@ export default function PlanScreen() {
       pageProgress.filter((pg) => pg.memorized).map((pg) => pg.pageNumber),
     );
 
+    const isDaily = plan?.planMode === "daily";
     const activeDows = new Set<number>(
-      plan?.activeDaysOfWeek ?? settingsActiveDays ?? [0, 1, 2, 3, 4],
+      isDaily
+        ? [0, 1, 2, 3, 4, 5, 6]
+        : plan?.activeDaysOfWeek ?? settingsActiveDays ?? [0, 1, 2, 3, 4],
     );
     if (activeDows.size === 0) activeDows.add(new Date().getDay());
 
