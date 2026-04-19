@@ -1,19 +1,20 @@
+import { SURAHS } from "../data/quranMeta";
 import {
   PageProgress,
   MemorizationStrength,
   TOTAL_QURAN_PAGES,
   Plan,
   PlanDirection,
-} from '../types';
-import { SURAHS } from '../data/quranMeta';
+  TaskSelection,
+} from "../types";
 
 // ─── Date Helpers ─────────────────────────────────────────
 
 export function todayISO(): string {
   const d = new Date();
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -21,8 +22,8 @@ export function addDays(date: string, days: number): string {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -45,32 +46,24 @@ export function isOverdue(nextReviewDate: string): boolean {
 export function generatePlan(
   pageNumbers: number[],
   pagesPerDay: number,
-  label: string = 'خطة حفظ',
-  direction: PlanDirection = 'forward',
-  mushafSurahPages?: Record<number, [number, number]>
+  label: string = "خطة حفظ",
+  direction: PlanDirection = "forward",
+  mushafSurahPages?: Record<number, [number, number]>,
 ): Plan {
-  // Deduplicate and filter out zeros
-  const uniquePages = Array.from(new Set(pageNumbers)).filter(p => p > 0);
+  const uniquePages = Array.from(new Set(pageNumbers)).filter((p) => p > 0);
   const usedPageSet = new Set(uniquePages);
+  const surahsData = mushafSurahPages
+    ? Object.entries(mushafSurahPages).map(([id, [s, e]]) => ({ id: Number(id), startPage: s, endPage: e }))
+    : SURAHS.map((s) => ({ id: s.id, startPage: s.startPage, endPage: s.endPage }));
 
-  // Build list of surahs with their page boundaries
-  // If edition data is provided, use it; otherwise fall back to default SURAHS (madani_604)
-  const surahsData: { id: number; startPage: number; endPage: number }[] =
-    mushafSurahPages
-      ? Object.entries(mushafSurahPages)
-          .map(([id, [s, e]]) => ({ id: Number(id), startPage: s, endPage: e }))
-      : SURAHS.map(s => ({ id: s.id, startPage: s.startPage, endPage: s.endPage }));
-
-  // Sort surahs by direction
   const sortedSurahs = [...surahsData].sort((a, b) =>
-    direction === 'forward' ? a.id - b.id : b.id - a.id
+    direction === "forward" ? a.id - b.id : b.id - a.id,
   );
 
   const result: number[] = [];
   const addedPages = new Set<number>();
 
-  // Process surahs in order; within each surah pages are always ascending
-  sortedSurahs.forEach(surah => {
+  sortedSurahs.forEach((surah) => {
     for (let p = surah.startPage; p <= surah.endPage; p++) {
       if (usedPageSet.has(p) && !addedPages.has(p)) {
         result.push(p);
@@ -79,53 +72,40 @@ export function generatePlan(
     }
   });
 
-  // Fallback: include any pages not covered by surah data
   const fallbackSorted = [...uniquePages].sort((a, b) =>
-    direction === 'forward' ? a - b : b - a
+    direction === "forward" ? a - b : b - a,
   );
-  fallbackSorted.forEach(p => {
+  fallbackSorted.forEach((p) => {
     if (!addedPages.has(p)) {
       result.push(p);
       addedPages.add(p);
     }
   });
 
-  const orderedPages = result;
-  const totalDays = Math.ceil(orderedPages.length / Math.max(1, pagesPerDay));
-
   return {
-    targetPages: orderedPages,
+    targetPages: result,
     currentPageIndex: 0,
     pagesPerDay: Math.max(1, pagesPerDay),
-    totalDays,
+    totalDays: Math.ceil(result.length / Math.max(1, pagesPerDay)),
     startDate: todayISO(),
     direction,
     label,
   };
 }
 
-/**
- * يحسب تاريخ اليوم رقم (dayIndex) في الخطة بناءً على الأيام النشطة
- * @param startDate تاريخ بداية الخطة ISO
- * @param dayIndex رقم اليوم في الخطة (0-based)
- * @param activeDays الأيام النشطة في الأسبوع (0-6)
- */
 export function getPlanDayDate(
   startDate: string,
   dayIndex: number,
-  activeDays: number[]
+  activeDays: number[],
 ): string {
   const activeSet = new Set(activeDays.length > 0 ? activeDays : [0, 1, 2, 3, 4]);
-  const [y, m, d] = startDate.split('-').map(Number);
+  const [y, m, d] = startDate.split("-").map(Number);
   let current = new Date(y, m - 1, d);
   let found = 0;
-
-  // We look for the dayIndex-th active day starting from startDate
-  // If dayIndex is 0, we find the first active day >= startDate
   while (true) {
     if (activeSet.has(current.getDay())) {
       if (found === dayIndex) {
-        return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+        return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, "0")}-${String(current.getDate()).padStart(2, "0")}`;
       }
       found++;
     }
@@ -137,27 +117,46 @@ export function getPlanDayDate(
 
 export function getNextReviewDate(
   strength: MemorizationStrength,
-  today: string = todayISO()
+  today: string = todayISO(),
 ): string {
   const intervals: Record<MemorizationStrength, number> = {
-    1: 1,
-    2: 1,
-    3: 2,
-    4: 7,
-    5: 14,
+    1: 1, 2: 2, 3: 7, 4: 14, 5: 30,
   };
   return addDays(today, intervals[strength]);
 }
 
 export function strengthAfterReview(
   currentStrength: MemorizationStrength,
-  passed: boolean
+  passed: boolean,
 ): MemorizationStrength {
-  if (passed) {
-    return Math.min(5, currentStrength + 1) as MemorizationStrength;
-  } else {
-    return Math.max(1, currentStrength - 1) as MemorizationStrength;
-  }
+  if (passed) return Math.min(5, currentStrength + 1) as MemorizationStrength;
+  return Math.max(1, currentStrength - 2) as MemorizationStrength;
+}
+
+export function calculateStabilityIndex(
+  pages: PageProgress[],
+  taskSelections: TaskSelection[] = [],
+): number {
+  if (pages.length === 0) return 0;
+  const baseWeights = { 1: 15, 2: 35, 3: 65, 4: 85, 5: 100 };
+  const totalStability = pages.reduce((sum, p) => {
+    let score = baseWeights[p.strength as MemorizationStrength];
+    const modulesCoveringPage = new Set<string>();
+    taskSelections.forEach((task) => {
+      if (task.timesCompleted > 0) {
+        const isCovered = task.ranges.some((range) => {
+          if (range.type === "page") {
+            return p.pageNumber >= range.start && p.pageNumber <= range.end;
+          }
+          return false;
+        });
+        if (isCovered) modulesCoveringPage.add(task.module);
+      }
+    });
+    const bonus = modulesCoveringPage.size * 3;
+    return sum + Math.min(100, score + bonus);
+  }, 0);
+  return Math.round(totalStability / pages.length);
 }
 
 // ─── Pages Due for Review ─────────────────────────────────
@@ -166,7 +165,7 @@ export function getPagesDueForReview(pages: PageProgress[]): PageProgress[] {
   const today = todayISO();
   return pages
     .filter((p) => p.memorized && p.nextReviewDate <= today)
-    .sort((a, b) => a.strength - b.strength); // Weakest first
+    .sort((a, b) => a.strength - b.strength);
 }
 
 // ─── XP & Title ───────────────────────────────────────────
@@ -219,38 +218,16 @@ export function calculateStreak(
 ): { current: number; longest: number; lastActiveDate: string } {
   const today = todayISO();
   const yesterday = addDays(today, -1);
-
   if (!completedToday) {
-    // If not completed today, check if the streak is already broken from previous days
-    if (lastActiveDate && lastActiveDate < yesterday) {
-      return { current: 0, longest: longestStreak, lastActiveDate };
-    }
+    if (lastActiveDate && lastActiveDate < yesterday) return { current: 0, longest: longestStreak, lastActiveDate };
     return { current: currentStreak, longest: longestStreak, lastActiveDate };
   }
-
-  // --- COMPLETED TODAY ---
-  
-  // 1. Already updated today - no change needed
-  if (lastActiveDate === today) {
-    return { current: currentStreak, longest: longestStreak, lastActiveDate: today };
-  }
-
-  // 2. Continuing from yesterday
+  if (lastActiveDate === today) return { current: currentStreak, longest: longestStreak, lastActiveDate: today };
   if (lastActiveDate === yesterday) {
     const newCurrent = currentStreak + 1;
-    return {
-      current: newCurrent,
-      longest: Math.max(longestStreak, newCurrent),
-      lastActiveDate: today,
-    };
+    return { current: newCurrent, longest: Math.max(longestStreak, newCurrent), lastActiveDate: today };
   }
-
-  // 3. New streak (first time or after a break)
-  return {
-    current: 1,
-    longest: Math.max(longestStreak, 1),
-    lastActiveDate: today,
-  };
+  return { current: 1, longest: Math.max(longestStreak, 1), lastActiveDate: today };
 }
 
 // ─── Arabic Number Formatter ──────────────────────────────

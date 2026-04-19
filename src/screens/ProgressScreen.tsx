@@ -14,7 +14,11 @@ import { JUZ_META } from "../data/quranMeta";
 import { useAppStore } from "../store/AppStore";
 import { Spacing, useTheme } from "../theme";
 import { MemorizationStrength } from "../types";
-import { getXPProgressToNextLevel } from "../utils/helpers";
+import {
+  calculateStabilityIndex,
+  getXPProgressToNextLevel,
+  toArabicNumerals,
+} from "../utils/helpers";
 
 const { width } = Dimensions.get("window");
 const CIRCLE_SIZE = width * 0.45;
@@ -68,6 +72,13 @@ export default function ProgressScreen() {
     strengthDist[p.strength as MemorizationStrength]++;
   });
 
+  const stabilityIndex = calculateStabilityIndex(
+    memorizedPages,
+    state.taskSelections,
+  );
+  const masteredCount = strengthDist[5] + strengthDist[4];
+  const weakCount = strengthDist[1] + strengthDist[2];
+
   const remainingCount = totalPages - memorizedPages.length;
   const daysRemaining = Math.max(
     1,
@@ -93,12 +104,16 @@ export default function ProgressScreen() {
           />
           <View style={styles.heroMeta}>
             <View style={styles.metaItem}>
-              <Text style={styles.metaValue}>{memorizedPages.length}</Text>
+              <Text style={styles.metaValue}>
+                {toArabicNumerals(memorizedPages.length)}
+              </Text>
               <Text style={styles.metaLabel}>صفحة متممة</Text>
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaItem}>
-              <Text style={styles.metaValue}>{remainingCount}</Text>
+              <Text style={styles.metaValue}>
+                {toArabicNumerals(remainingCount)}
+              </Text>
               <Text style={styles.metaLabel}>صفحة متبقية</Text>
             </View>
           </View>
@@ -125,7 +140,7 @@ export default function ProgressScreen() {
               {user?.name || "يا حامل القرآن"}
             </Text>
             <Text style={styles.levelSubtitle}>
-              المستوى {Math.floor(totalXP / 1000) + 1} —{" "}
+              المستوى {toArabicNumerals(Math.floor(totalXP / 1000) + 1)} —{" "}
               {user?.title || "مبتدئ"}
             </Text>
             <View style={styles.xpTrack}>
@@ -137,7 +152,8 @@ export default function ProgressScreen() {
               />
             </View>
             <Text style={styles.xpStatus}>
-              {xpProgress.current} / {xpProgress.required} XP للتالي
+              {toArabicNumerals(xpProgress.current)} /{" "}
+              {toArabicNumerals(xpProgress.required)} XP للتالي
             </Text>
           </View>
         </View>
@@ -146,17 +162,23 @@ export default function ProgressScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statMiniCard}>
             <Ionicons name="flame" size={18} color={Colors.gold} />
-            <Text style={styles.statMiniValue}>{streak.currentStreak}</Text>
+            <Text style={styles.statMiniValue}>
+              {toArabicNumerals(streak.currentStreak)}
+            </Text>
             <Text style={styles.statMiniLabel}>يوم متواصل</Text>
           </View>
           <View style={styles.statMiniCard}>
             <Ionicons name="analytics" size={18} color={Colors.blue} />
-            <Text style={styles.statMiniValue}>{user?.dailyPages || 1}</Text>
+            <Text style={styles.statMiniValue}>
+              {toArabicNumerals(user?.dailyPages || 1)}
+            </Text>
             <Text style={styles.statMiniLabel}>صفحة/يوم</Text>
           </View>
           <View style={styles.statMiniCard}>
             <Ionicons name="trophy" size={18} color={Colors.success} />
-            <Text style={styles.statMiniValue}>{totalXP}</Text>
+            <Text style={styles.statMiniValue}>
+              {toArabicNumerals(totalXP)}
+            </Text>
             <Text style={styles.statMiniLabel}>نقاط الخبرة</Text>
           </View>
         </View>
@@ -167,55 +189,108 @@ export default function ProgressScreen() {
             <Text style={styles.sectionTitle}>رحلة الختام (٣٠ جزء)</Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>
-                {juzProgress.filter((j) => j.pct >= 1).length} / ٣٠ جزء
+                {toArabicNumerals(juzProgress.filter((j) => j.pct >= 1).length)}{" "}
+                / ٣٠ جزء
               </Text>
             </View>
           </View>
           <JuzRoadmap juzProgress={juzProgress} Colors={Colors} />
         </View>
 
-        {/* Strength Metrics */}
+        {/* Stability Balance */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>ميزان الرسوخ (الجودة)</Text>
-          <View style={styles.strengthScale}>
-            {([5, 4, 3, 2, 1] as MemorizationStrength[]).map((s) => {
-              const count = strengthDist[s];
-              const pct =
-                (memorizedPages.length > 0
-                  ? count / memorizedPages.length
-                  : 0) * 100;
-              if (pct === 0) return null;
-              return (
-                <View
-                  key={s}
-                  style={[
-                    styles.strengthChunk,
-                    { width: `${pct}%`, backgroundColor: STRENGTH_COLORS[s] },
-                  ]}
-                />
-              );
-            })}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>ميزان الرسوخ (الجودة)</Text>
+            <View
+              style={[
+                styles.stabilityBadge,
+                {
+                  backgroundColor:
+                    stabilityIndex > 70
+                      ? Colors.success + "15"
+                      : Colors.gold + "15",
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.stabilityBadgeText,
+                  { color: stabilityIndex > 70 ? Colors.success : Colors.gold },
+                ]}
+              >
+                {toArabicNumerals(stabilityIndex)}٪ ثبات
+              </Text>
+            </View>
           </View>
-          <View style={styles.legend}>
-            {[
-              [5, "راسخ"],
-              [3, "متوسط"],
-              [1, "ضعيف"],
-            ].map(([s, label]) => (
-              <View key={s} style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.dot,
-                    {
-                      backgroundColor:
-                        STRENGTH_COLORS[s as MemorizationStrength],
-                    },
-                  ]}
-                />
-                <Text style={styles.legendText}>{label as string}</Text>
+
+          <View style={styles.stabilityCard}>
+            <View style={styles.stabilityBarBg}>
+              <View
+                style={[
+                  styles.stabilityBarFill,
+                  {
+                    width: `${stabilityIndex}%`,
+                    backgroundColor:
+                      stabilityIndex > 70 ? Colors.primary : Colors.gold,
+                  },
+                ]}
+              />
+            </View>
+            <View style={styles.qualityRow}>
+              <View style={styles.qualityItem}>
+                <Text style={styles.qualityLabel}>متين (قوي)</Text>
+                <Text style={[styles.qualityValue, { color: Colors.primary }]}>
+                  {toArabicNumerals(masteredCount)} ص
+                </Text>
               </View>
-            ))}
+              <View style={styles.qualityDivider} />
+              <View style={styles.qualityItem}>
+                <Text style={styles.qualityLabel}>مهتز (ضعيف)</Text>
+                <Text style={[styles.qualityValue, { color: Colors.red }]}>
+                  {toArabicNumerals(weakCount)} ص
+                </Text>
+              </View>
+            </View>
           </View>
+
+          <Text style={styles.subsectionTitle}>تحليل الرسوخ لكل جزء</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.juzStabilityScroll}
+          >
+            {juzProgress
+              .filter((j) => j.pct > 0)
+              .map((j) => {
+                const pagesInJuz = memorizedPages.filter(
+                  (p) =>
+                    p.pageNumber >= JUZ_META[j.id - 1].startPage &&
+                    p.pageNumber <= JUZ_META[j.id - 1].endPage,
+                );
+                const juzStability = calculateStabilityIndex(
+                  pagesInJuz,
+                  state.taskSelections,
+                );
+                return (
+                  <View key={j.id} style={styles.juzMiniCard}>
+                    <Text style={styles.juzMiniName}>
+                      جزء {toArabicNumerals(j.id)}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.juzMiniStability,
+                        {
+                          color:
+                            juzStability > 80 ? Colors.primary : Colors.gold,
+                        },
+                      ]}
+                    >
+                      {toArabicNumerals(juzStability)}٪
+                    </Text>
+                  </View>
+                );
+              })}
+          </ScrollView>
         </View>
 
         {/* Bottom Metrics */}
@@ -223,10 +298,16 @@ export default function ProgressScreen() {
           {[
             {
               label: "إجمالي الصفحات المتبقية",
-              value: `${remainingCount} صفحة`,
+              value: `${toArabicNumerals(remainingCount)} صفحة`,
             },
-            { label: "أيام الإنجاز المتبقية", value: `${daysRemaining} يوم` },
-            { label: "أطول سلسلة إنجاز", value: `${streak.longestStreak} يوم` },
+            {
+              label: "أيام الإنجاز المتبقية",
+              value: `${toArabicNumerals(daysRemaining)} يوم`,
+            },
+            {
+              label: "أطول سلسلة إنجاز",
+              value: `${toArabicNumerals(streak.longestStreak)} يوم`,
+            },
           ].map((item, i) => (
             <View key={i}>
               <View style={styles.detailRow}>
@@ -348,6 +429,63 @@ const getStyles = (Colors: any) =>
       marginVertical: 4,
     },
     statMiniLabel: { fontSize: 9, color: Colors.textSecondary },
+    stabilityBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+    },
+    stabilityBadgeText: { fontSize: 11, fontWeight: "bold" },
+    stabilityCard: {
+      backgroundColor: Colors.surface,
+      borderRadius: 20,
+      padding: Spacing.lg,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      marginBottom: Spacing.lg,
+    },
+    stabilityBarBg: {
+      height: 10,
+      backgroundColor: Colors.borderLight,
+      borderRadius: 5,
+      width: "100%",
+      overflow: "hidden",
+      marginBottom: Spacing.md,
+    },
+    stabilityBarFill: { height: "100%", borderRadius: 5 },
+    qualityRow: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      alignItems: "center",
+      marginTop: 4,
+    },
+    qualityItem: { alignItems: "center" },
+    qualityLabel: {
+      fontSize: 10,
+      color: Colors.textSecondary,
+      marginBottom: 2,
+    },
+    qualityValue: { fontSize: 14, fontWeight: "bold" },
+    qualityDivider: { width: 1, height: 20, backgroundColor: Colors.border },
+    subsectionTitle: {
+      fontSize: 13,
+      fontWeight: "bold",
+      color: Colors.textSecondary,
+      marginBottom: Spacing.md,
+      textAlign: "left",
+    },
+    juzStabilityScroll: { gap: Spacing.md, paddingBottom: 4 },
+    juzMiniCard: {
+      backgroundColor: Colors.surface,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      alignItems: "center",
+      minWidth: 70,
+    },
+    juzMiniName: { fontSize: 10, color: Colors.textSecondary, marginBottom: 2 },
+    juzMiniStability: { fontSize: 13, fontWeight: "bold" },
     section: { marginBottom: Spacing.lg },
     sectionHeader: {
       flexDirection: "row",
@@ -368,20 +506,6 @@ const getStyles = (Colors: any) =>
       borderRadius: 12,
     },
     badgeText: { fontSize: 13, color: Colors.primary, fontWeight: "bold" },
-    strengthScale: {
-      height: 12,
-      width: "100%",
-      backgroundColor: Colors.border,
-      borderRadius: 6,
-      flexDirection: "row",
-      overflow: "hidden",
-      marginBottom: Spacing.md,
-    },
-    strengthChunk: { height: "100%" },
-    legend: { flexDirection: "row", justifyContent: "flex-start", gap: 20 },
-    legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-    dot: { width: 10, height: 10, borderRadius: 5 },
-    legendText: { fontSize: 11, color: Colors.textSecondary },
     detailedCard: {
       backgroundColor: Colors.surface,
       borderRadius: 24,

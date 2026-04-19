@@ -224,10 +224,11 @@ function appReducer(state: AppState, action: Action): AppState {
         pageProgress.push({
           pageNumber: p,
           memorized: isMemorized,
-          strength: isMemorized ? 1 : 1,
+          // If already memorized, start with "Solid" strength (4)
+          strength: isMemorized ? 4 : 1,
           lastReviewed: isMemorized ? today : "",
-          reviewCount: isMemorized ? 1 : 0,
-          nextReviewDate: isMemorized ? getNextReviewDate(1, today) : "",
+          reviewCount: isMemorized ? 3 : 0, // Assume they've reviewed it before if they know it
+          nextReviewDate: isMemorized ? getNextReviewDate(4, today) : "",
         });
       }
 
